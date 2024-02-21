@@ -1,0 +1,199 @@
+body {
+    background-color: black;
+    display: grid;
+    grid-template-rows: auto auto 90px auto;
+    grid-template-columns: 180px 120px 50% 30%;
+    grid-template-areas:
+        "Header Header Header Header"
+        "Description Description Description Description"
+        "Searchbar Button Content Content"
+        "Results Results Content Content";
+}
+
+.widgets {
+    color: white;
+    padding-left: 1em;
+}
+
+a {
+    color: lightcyan;
+}
+
+header {
+    grid-area: Header;
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    font-size: 64px;
+    font-family: sans-serif;
+    color: yellow;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(251, 251, 251);
+}
+
+#Description {
+    grid-area: Description;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 24px;
+    padding: 5px 30px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(251, 251, 251);
+}
+
+input {
+    grid-area: Searchbar;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(251, 251, 251);
+}
+
+button {
+    grid-area: Button;
+    padding-left: 5px;
+    padding-top: 15px;
+}
+
+#content {
+    grid-area: Content;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(251, 251, 251);
+}
+
+#results {
+    color: white;
+    grid-area: Results;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(251, 251, 251);
+}
+
+button {
+    display: inline-block;
+    cursor: pointer;
+
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 50px;
+    padding: 10px 18px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+    font-size: 9.5pt;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+    font-family: sans-serif;
+    text-decoration: none;
+}
+
+button.green {
+    border-color: #3e3e3e;
+    background: #5a5aa9;
+}
+
+button:hover {
+    background: #ff7474;
+}
+
+button:active {
+    background: #ff0000;
+    box-shadow: 0 0 6px rgba(0, 0, 0, .6);
+}
+
+button:focus {
+    outline: 0;
+}
+
+.result {
+    max-width: 300px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: grey;
+    color: black;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: black;
+    border-width: 2px;
+}
+
+.AddedPokémon {
+    background-color: grey;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: black;
+    border-width: 2px;
+}
+
+.type {
+    width: 85px;
+    height: 1.2em;
+    text-align: center;
+    text-shadow: 2px 2px 3px white;
+    border-style: solid;
+    border-radius: 1px;
+    border-width: 1px;
+}
+
+.types {
+    display: flex;
+    flex-direction: column;
+}
+
+.AddedPokémon {
+    display: grid;
+    font-size: 16px;
+    grid-template-columns: 25% 25% 25% 25%;
+    grid-template-rows: 40px auto 40px;
+    grid-template-areas:
+        "Delete Name Nickname Types"
+        "Image Image Moves Moves"
+        "Ability Ability HeldItem HeldItem";
+}
+
+.delete {
+    grid-area: Delete;
+    border-color: #3e3e3e;
+    background: #5a5aa9;
+}
+
+.AddedPokémonName {
+    grid-area: Name;
+    text-align: center;
+}
+
+.NicknameBar {
+    grid-area: Nickname;
+}
+
+.AddedPokémonTypes {
+    grid-area: Types;
+    display: flex;
+    justify-content: space-between;
+}
+
+.AddedPokémonSprite {
+    grid-area: Image;
+}
+
+.Moves {
+    grid-area: Moves;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.AbilityBar {
+    padding-top: 15px;
+    grid-area: Ability;
+    padding-bottom: 5px;
+}
+
+.ItemBar {
+    padding-top: 15px;
+    grid-area: HeldItem;
+    padding-bottom: 5px;
+}

@@ -1,11 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teambuilder 2: Electric Boogaloo</title>
+    <link rel="stylesheet" type="text/css" href="CSS/main.css" />
 </head>
+
 <body>
-    
+    <header>
+        <img src="Images/UltraBall.png" alt="">
+        THE POKEMON TEAM OUTLINER
+        <img src="Images/UltraBall.png" alt="">
+    </header>
+
+    <div id="Description">
+        This application is designed to create a decent outline of a Pokémon 
+        party. Whether you want to build a basic team for a playthrough or 
+        competitive, or you're designing the important trainers of a ROM Hack 
+        you're developing, this application can help you outline and look at a 
+        party of up to 6 Pokémon in a concise, simple manner.<br><br>
+        Just type a Pokémon's name into the search bar, then hit the search 
+        button. Click the result, then get to work.<br><br>
+
+        <a href="Doc/doc.html">Documentation</a>
+    </div>
+
+    <div class="widgets">
+        Search for a Pokémon by its name or National Dex number here: 
+		<input id="searchterm" type="text" size="20" maxlength="20" autofocus value="" placeholder="Pokémon Name"/>
+	</div>
+
+    <div class="widgets">
+		<button type="button" id="search" class="green">Search</button>
+	</div>
+
+    <div id="results">
+
+    </div>
+
+    <div id="content">
+
+    </div>
 </body>
+
+<script src="JavaScript/main.js"></script>
+
 </html>
