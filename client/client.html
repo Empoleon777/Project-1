@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teambuilder 2: Electric Boogaloo</title>
-    <link rel="stylesheet" type="text/css" href="CSS/main.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 
 <body>
@@ -17,25 +17,19 @@
     </header>
 
     <div id="Description">
-        This application is designed to create a decent outline of a Pokémon 
-        party. Whether you want to build a basic team for a playthrough or 
-        competitive, or you're designing the important trainers of a ROM Hack 
-        you're developing, this application can help you outline and look at a 
+        This application is designed to create a decent outline of a Pokémon
+        party. Whether you want to build a basic team for a playthrough or
+        competitive, or you're designing the important trainers of a ROM Hack
+        you're developing, this application can help you outline and look at a
         party of up to 6 Pokémon in a concise, simple manner.<br><br>
-        Just type a Pokémon's name into the search bar, then hit the search 
+        Just type a Pokémon's name into the search bar, then hit the search
         button. Click the result, then get to work.<br><br>
-
-        <a href="Doc/doc.html">Documentation</a>
     </div>
 
     <div class="widgets">
-        Search for a Pokémon by its name or National Dex number here: 
-		<input id="searchterm" type="text" size="20" maxlength="20" autofocus value="" placeholder="Pokémon Name"/>
-	</div>
-
-    <div class="widgets">
-		<button type="button" id="search" class="green">Search</button>
-	</div>
+        Search for a Pokémon by its name or National Dex number here:
+        <input id="searchterm" type="text" size="20" maxlength="20" autofocus value="" placeholder="Pokémon Name" />
+    </div>
 
     <div id="results">
 
@@ -46,6 +40,124 @@
     </div>
 </body>
 
-<script src="JavaScript/main.js"></script>
+<script>
+    const POKÉAPI_URL_BERRIES = "https://pokeapi.co/api/v2/berry";
+    const POKÉAPI_URL_ITEMS = "https://pokeapi.co/api/v2/item";
+    const POKÉAPI_URL_MOVES = "https://pokeapi.co/api/v2/move/";
+    const POKÉAPI_URL_POKÉMON = "https://pokeapi.co/api/v2/pokemon/";
+    const POKÉAPI_URL_NATURES = "https://pokeapi.co/api/v2/nature/";
+    const POKÉAPI_URL_TYPES = "https://pokeapi.co/api/v2/type/";
+
+    let searchBar;
+    let searchButton;
+    let results;
+    let content;
+    let pokémon;
+    let moves;
+    let berries;
+    let natures;
+    let types;
+
+    const init = () => {
+        searchBar = document.querySelector("#searchterm");
+        searchButton = document.querySelector("#search");
+        results = document.querySelector("#results");
+        content = document.querySelector("#content");
+
+        searchBar.addEventListener('change', search);
+    }
+
+    const handleResponse = async (response, parseResponse) => {
+        switch (response.status) {
+            case 200:
+                console.log(`${response.status}`);
+                break;
+            case 201:
+                console.log(`${response.status}`);
+                break;
+            case 204:
+                console.log(`${response.status}`);
+                return;
+            case 400:
+                console.log(`${response.status}`);
+                break;
+            case 404:
+                console.log(`${response.status}`);
+                break;
+            default:
+                console.log(`${response.status}`);
+                break;
+        }
+    };
+
+    const sendPost = async (content) => {
+        const members = document.querySelectorAll(".member");
+
+
+        handleResponse(response);
+    };
+
+    const loadPokémon = async (data) => {
+        let url = POKÉAPI_URL_POKÉMON;
+
+        // First things first, we need to process the search term.
+        let term = document.querySelector("#searchterm").value;
+        displayTerm = term;
+
+        // The term is trimmed.
+        term = term.trim();
+
+        // The term is encoded.
+        term = encodeURIComponent(term);
+
+        // If the term is nonexistant, the function cuts off operation here.
+        if (term.length < 1) return;
+
+        handleResponse(response, method === 'get');
+    };
+
+    const loadMoves = async (data) => {
+
+
+        handleResponse(response, method === 'get');
+    };
+
+    const loadItems = async (data) => {
+
+
+        handleResponse(response, method === 'get');
+    };
+
+    const loadBerries = async (data) => {
+
+
+        handleResponse(response, method === 'get');
+    };
+
+    const loadNatures = async (data) => {
+
+
+        handleResponse(response, method === 'get');
+    };
+
+    const loadTypes = async (data) => {
+
+
+        handleResponse(response, method === 'get');
+    };
+
+    const search = () => {
+        results.innerHTML = "";
+
+        // First things first, we need to process the search term.
+        let term = document.querySelector("#searchterm").value;
+        displayTerm = term;
+
+        // The term is trimmed.
+        term = term.trim();
+    };
+
+    window.onload = init;
+</script>
 
 </html>

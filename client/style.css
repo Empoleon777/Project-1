@@ -6,7 +6,7 @@ body {
     grid-template-areas:
         "Header Header Header Header"
         "Description Description Description Description"
-        "Searchbar Button Content Content"
+        "Searchbar Searchbar Content Content"
         "Results Results Content Content";
 }
 
