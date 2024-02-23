@@ -22,8 +22,6 @@
         competitive, or you're designing the important trainers of a ROM Hack
         you're developing, this application can help you outline and look at a
         party of up to 6 Pokémon in a concise, simple manner.<br><br>
-        Just type a Pokémon's name into the search bar, then hit the search
-        button. Click the result, then get to work.<br><br>
     </div>
 
     <div class="widgets">
@@ -43,10 +41,10 @@
 <script>
     const POKÉAPI_URL_BERRIES = "https://pokeapi.co/api/v2/berry";
     const POKÉAPI_URL_ITEMS = "https://pokeapi.co/api/v2/item";
-    const POKÉAPI_URL_MOVES = "https://pokeapi.co/api/v2/move/";
-    const POKÉAPI_URL_POKÉMON = "https://pokeapi.co/api/v2/pokemon/";
-    const POKÉAPI_URL_NATURES = "https://pokeapi.co/api/v2/nature/";
-    const POKÉAPI_URL_TYPES = "https://pokeapi.co/api/v2/type/";
+    const POKÉAPI_URL_MOVES = "https://pokeapi.co/api/v2/move";
+    const POKÉAPI_URL_POKÉMON = "https://pokeapi.co/api/v2/pokemon";
+    const POKÉAPI_URL_NATURES = "https://pokeapi.co/api/v2/nature";
+    const POKÉAPI_URL_TYPES = "https://pokeapi.co/api/v2/type";
 
     let searchBar;
     let searchButton;
@@ -55,14 +53,23 @@
     let pokémon;
     let moves;
     let berries;
+    let items;
     let natures;
     let types;
+    let memberCount = 0;
 
     const init = () => {
         searchBar = document.querySelector("#searchterm");
         searchButton = document.querySelector("#search");
         results = document.querySelector("#results");
         content = document.querySelector("#content");
+
+        pokémon = loadData(POKÉAPI_URL_POKÉMON);
+        moves = loadData(POKÉAPI_URL_MOVES);
+        berries = loadData(POKÉAPI_URL_BERRIES);
+        items = loadData(POKÉAPI_URL_ITEMS);
+        natures = loadData(POKÉAPI_URL_NATURES);
+        types = loadData(POKÉAPI_URL_TYPES);
 
         searchBar.addEventListener('change', search);
     }
@@ -93,61 +100,124 @@
     const sendPost = async (content) => {
         const members = document.querySelectorAll(".member");
 
-
         handleResponse(response);
     };
 
-    const loadPokémon = async (data) => {
-        let url = POKÉAPI_URL_POKÉMON;
+    const loadData = (baseURL) => {
+        let url = baseURL + '?limit=200000&offset=0';
+        let obj;
 
-        // First things first, we need to process the search term.
-        let term = document.querySelector("#searchterm").value;
-        displayTerm = term;
+        getData(url);
 
-        // The term is trimmed.
-        term = term.trim();
+        return obj;
 
-        // The term is encoded.
-        term = encodeURIComponent(term);
+        const getData = (url) => {
+            // 1
+            let xhr = new XMLHttpRequest();
 
-        // If the term is nonexistant, the function cuts off operation here.
-        if (term.length < 1) return;
+            // 2
+            xhr.onload = returnJSON;
 
-        handleResponse(response, method === 'get');
-    };
+            // 3
+            xhr.onerror = dataError;
 
-    const loadMoves = async (data) => {
+            // 4
+            xhr.open("GET", url);
+            xhr.send();
+        }
 
+        const dataError = (e) => {
+            console.log("An error occurred");
+        }
 
-        handleResponse(response, method === 'get');
-    };
+        const returnJSON = async (e) => {
+            let xhr = e.target;
+            obj = JSON.parse(xhr.responseText);
+        }
+    }
 
-    const loadItems = async (data) => {
+    const getIndividualItem = (itemURL) => {
+        let obj;
+        getData(itemURL);
+        return obj;
 
+        const getData = (url) => {
+            // 1
+            let xhr = new XMLHttpRequest();
 
-        handleResponse(response, method === 'get');
-    };
+            // 2
+            xhr.onload = returnJSON;
 
-    const loadBerries = async (data) => {
+            // 3
+            xhr.onerror = dataError;
 
+            // 4
+            xhr.open("GET", url);
+            xhr.send();
+        }
 
-        handleResponse(response, method === 'get');
-    };
+        const dataError = (e) => {
+            console.log("An error occurred");
+        }
 
-    const loadNatures = async (data) => {
+        const returnJSON = async (e) => {
+            let xhr = e.target;
+            obj = JSON.parse(xhr.responseText);
+        }
+    }
 
+    // This method cleans up name formatting.
+    const reformatName = (name) => {
+        for (let i = 0; i < name.length; i++) {
+            if (name[i] === '-' &&
+                (name != "porygon-z" ||
+                    name != "jangmo-o" ||
+                    name != "hakamo-o" ||
+                    name != "kommo-o" ||
+                    name != "u-turn" ||
+                    name != "x-scissor" ||
+                    name != "topsy-turvy" ||
+                    (name != "baby-doll-eyes" && name.indexOf("-") != i) ||
+                    (name != "power-up-punch" && name.indexOf("-") != i) ||
+                    (name != "wake-up-slap" && name.indexOf("-") != i) ||
+                    name != "v-create" ||
+                    name != "will-o-wisp" ||
+                    name != "trick-or-treat" ||
+                    name != "freeze-dry" ||
+                    name != "double-edge" ||
+                    name != "multi-attack" ||
+                    name != "self-destruct" ||
+                    name != "soft-boiled" ||
+                    (name != "heavy-duty-boots" && name.indexOf("-") != i) ||
+                    (name != "never-melt-ice" && name.indexOf("-") != i) ||
+                    (name != "twice-spiced-radish" && name.indexOf("-") != i) ||
+                    (name != "fresh-start-mochi" && name.indexOf("-") != i) ||
+                    name != "go-goggles" ||
+                    (name != "make-up-bag" && name.indexOf("-") != i) ||
+                    name != "n-solarizer" ||
+                    name != "n-lunarizer" ||
+                    (name != "z-power-ring" && name.indexOf("-") != i) ||
+                    name != "z-ring" ||
+                    name != "up-grade")) {
+                name != " ";
+            }
 
-        handleResponse(response, method === 'get');
-    };
+            name = name.charAt(0).toUpperCase() + name.slice(1);
 
-    const loadTypes = async (data) => {
+            if ((name[i] === '-' ||
+                name[i] === " ") &&
+                (name != "u-turn" ||
+                    name != "v-create")) {
+                name = name.slice(0, i + 1) + name.charAt(i + 1).toUpperCase() + name.slice(i + 2);
+            }
+        }
 
-
-        handleResponse(response, method === 'get');
-    };
+        return name;
+    }
 
     const search = () => {
         results.innerHTML = "";
+        let result = ""
 
         // First things first, we need to process the search term.
         let term = document.querySelector("#searchterm").value;
@@ -155,7 +225,143 @@
 
         // The term is trimmed.
         term = term.trim();
+
+        let line = "";
+
+        for (let i = 0; i < pokémon["results"].length; i++) {
+            if (pokémon["results"][i].name.slice(0, term.length) == term) {
+                result = getIndividualItem(pokémon["results"][i].url);
+
+                // The result is displayed. The name, types, and party sprite of the 
+                // Pokémon will be included.
+                line += `<div class='result'>`;
+                line += `<img src="${result["sprites"]["versions"]["generation-ix"]["icons"]["front_default"]}"`;
+                line += `" alt="">`
+
+                line += `<div class='resultname'>`;
+                line += `${reformatName(result.name)}`;
+                line += `</div>`;
+
+                line += `<div class='types'>`;
+                for (let i = 0; i < result["types"].length; i++) {
+                    let type = result["types"][i]["type"].name;
+                    line += `<div class='type'>`;
+                    line += `${reformatName(type)}`;
+                    line += `</div>`;
+                }
+                line += `</div>`;
+
+                line += `<div class='resultabilities'>`;
+                for (let i = 0; i < result["abilities"].length; i++) {
+                    line += `<p>${reformatName(result["abilities"][i]["ability"].name)}</p>`;
+                }
+                line += `</div>`;
+
+                line += `<p class="ResultHPLabel">HP</p>`;
+                line += `<p class="ResultAttackLabel">Attack</p>`;
+                line += `<p class="ResultDefenseLabel">Defense</p>`;
+                line += `<p class="ResultSpecialAttackLabel">Special Attack</p>`;
+                line += `<p class="ResultSpecialDefenseLabel">Special Defense</p>`;
+                line += `<p class="ResultSpeedLabel">Speed</p>`;
+
+                line += `<p class="ResultBaseHP">${result["stats"][0].base_stat}</p>`;
+                line += `<p class="ResultBaseAttack">${result["stats"][1].base_stat}</p>`;
+                line += `<p class="ResultBaseDefense">${result["stats"][2].base_stat}</p>`;
+                line += `<p class="ResultBaseSpecialAttack">${result["stats"][3].base_stat}</p>`;
+                line += `<p class="ResultBaseSpecialDefense">${result["stats"][4].base_stat}</p>`;
+                line += `<p class="ResultBaseSpeed">${result["stats"][5].base_stat}</p>`;
+
+                line += `<div>${result.name}</div>`;
+
+                line += `</div>`;
+            }
+        }
+
+        results.innerHTML = line;
+
+        typeBlocks = document.querySelectorAll(".type");
+
+        // These if-else statements assign color to the type blocks.
+        for (let i = 0; i < typeBlocks.length; i++) {
+            if (typeBlocks[i].innerHTML == "NORMAL") {
+                typeBlocks[i].style.backgroundColor = "#aca594";
+                typeBlocks[i].style.borderColor = "#aca594";
+            }
+            else if (typeBlocks[i].innerHTML == "FIRE") {
+                typeBlocks[i].style.backgroundColor = "#ec502a";
+                typeBlocks[i].style.borderColor = "#ec502a";
+            }
+            else if (typeBlocks[i].innerHTML == "WATER") {
+                typeBlocks[i].style.backgroundColor = "#4f9eff";
+                typeBlocks[i].style.borderColor = "#4f9eff";
+            }
+            else if (typeBlocks[i].innerHTML == "ELECTRIC") {
+                typeBlocks[i].style.backgroundColor = "#f9c52d";
+                typeBlocks[i].style.borderColor = "#f9c52d";
+            }
+            else if (typeBlocks[i].innerHTML == "GRASS") {
+                typeBlocks[i].style.backgroundColor = "86cd54";
+                typeBlocks[i].style.borderColor = "#86cd54";
+            }
+            else if (typeBlocks[i].innerHTML == "ICE") {
+                typeBlocks[i].style.backgroundColor = "#6fcfe8";
+                typeBlocks[i].style.borderColor = "#6fcfe8";
+            }
+            else if (typeBlocks[i].innerHTML == "FIGHTING") {
+                typeBlocks[i].style.backgroundColor = "#9e5137";
+                typeBlocks[i].style.borderColor = "#9e5137";
+            }
+            else if (typeBlocks[i].innerHTML == "POISON") {
+                typeBlocks[i].style.backgroundColor = "#ae5ba4";
+                typeBlocks[i].style.borderColor = "#ae5ba4";
+            }
+            else if (typeBlocks[i].innerHTML == "GROUND") {
+                typeBlocks[i].style.backgroundColor = "#e0cb8b";
+                typeBlocks[i].style.borderColor = "#e0cb8b";
+            }
+            else if (typeBlocks[i].innerHTML == "FLYING") {
+                typeBlocks[i].style.backgroundColor = "#9faef7";
+                typeBlocks[i].style.borderColor = "#9faef7";
+            }
+            else if (typeBlocks[i].innerHTML == "PSYCHIC") {
+                typeBlocks[i].style.backgroundColor = "#f573a4";
+                typeBlocks[i].style.borderColor = "#f573a4";
+            }
+            else if (typeBlocks[i].innerHTML == "BUG") {
+                typeBlocks[i].style.backgroundColor = "#aebc21";
+                typeBlocks[i].style.borderColor = "#aebc21";
+            }
+            else if (typeBlocks[i].innerHTML == "ROCK") {
+                typeBlocks[i].style.backgroundColor = "#baa459";
+                typeBlocks[i].style.borderColor = "#baa459";
+            }
+            else if (typeBlocks[i].innerHTML == "GHOST") {
+                typeBlocks[i].style.backgroundColor = "#6465b5";
+                typeBlocks[i].style.borderColor = "#6465b5";
+            }
+            else if (typeBlocks[i].innerHTML == "DRAGON") {
+                typeBlocks[i].style.backgroundColor = "#7a66e7";
+                typeBlocks[i].style.borderColor = "#7a66e7";
+            }
+            else if (typeBlocks[i].innerHTML == "DARK") {
+                typeBlocks[i].style.backgroundColor = "#715a4a";
+                typeBlocks[i].style.borderColor = "#715a4a";
+            }
+            else if (typeBlocks[i].innerHTML == "STEEL") {
+                typeBlocks[i].style.backgroundColor = "#adadc6";
+                typeBlocks[i].style.borderColor = "#adadc6";
+            }
+            else {
+                typeBlocks[i].style.backgroundColor = "#f1b6f7";
+                typeBlocks[i].style.borderColor = "#f1b6f7";
+            }
+        }
     };
+
+    // Adds a Pokémon to the content bar.
+    function addPokémon(pokémon) {
+        memberCount++;
+    }
 
     window.onload = init;
 </script>

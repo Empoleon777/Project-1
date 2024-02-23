@@ -1,11 +1,12 @@
 body {
     background-color: black;
     display: grid;
-    grid-template-rows: auto auto 90px auto;
+    grid-template-rows: auto auto 90px auto auto;
     grid-template-columns: 180px 120px 50% 30%;
     grid-template-areas:
         "Header Header Header Header"
         "Description Description Description Description"
+        "Searchbar Searchbar TeamSelector SaveTeam"
         "Searchbar Searchbar Content Content"
         "Results Results Content Content";
 }
@@ -108,10 +109,25 @@ button:focus {
 }
 
 .result {
-    max-width: 300px;
+    /* max-width: 300px;
     display: flex;
     justify-content: space-around;
     align-items: center;
+    background-color: grey;
+    color: black;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: black;
+    border-width: 2px; */
+
+    max-width: 300px;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        "Image Name Name Types Abilities Abilities"
+        "HPLabel AttackLabel DefenseLabel SpecialAttackLabel SpecialDefenseLabel SpeedLabel"
+        "BaseHP BaseAttack BaseDefense BaseSpecialAttack BaseSpecialDefense BaseSpeed";
     background-color: grey;
     color: black;
     border-style: solid;
@@ -146,12 +162,19 @@ button:focus {
 .AddedPokémon {
     display: grid;
     font-size: 16px;
-    grid-template-columns: 25% 25% 25% 25%;
-    grid-template-rows: 40px auto 40px;
+    grid-template-columns: 1/6 1/6 1/6 1/6 1/6 1/6;
+    grid-template-rows: 40px auto 40px auto auto auto auto auto auto auto;
     grid-template-areas:
-        "Delete Name Nickname Types"
-        "Image Image Moves Moves"
-        "Ability Ability HeldItem HeldItem";
+        "Delete Name Nickname Level Types Types"
+        "Image Image Image Moves Moves Moves"
+        "Ability Ability Ability HeldItem HeldItem HeldItem"
+        "BaseHP HPIVs EVs Sliders Sliders TrueStat"
+        "BaseAttack AttackIVs EVs Sliders Sliders TrueStat"
+        "BaseDefense DefenseIVs EVs Sliders Sliders TrueStat"
+        "BaseSpecialAttack SpecialAttackIVs EVs Sliders Sliders TrueStat"
+        "BaseSpecialDefense SpecialDefenseIVs SpecialDefenseEVs SpecialDefenseEVSlider SpecialDefenseEVSlider SpecialDefense"
+        "BaseSpeed SpeedIVs SpeedEVs SpeedEVSlider SpeedEVSlider Speed"
+        "NameValue NameValue NameValue NameValue NameValue NameValue";
 }
 
 .delete {
