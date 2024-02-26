@@ -1,23 +1,19 @@
 body {
     background-color: black;
     display: grid;
-    grid-template-rows: auto auto 90px auto auto;
+    grid-template-rows: auto auto 90px 500px;
     grid-template-columns: 180px 120px 50% 30%;
     grid-template-areas:
         "Header Header Header Header"
         "Description Description Description Description"
-        "Searchbar Searchbar TeamSelector SaveTeam"
-        "Searchbar Searchbar Content Content"
+        "Searchbar Searchbar TeamSelector SaveOrNew"
         "Results Results Content Content";
 }
 
 .widgets {
     color: white;
     padding-left: 1em;
-}
-
-a {
-    color: lightcyan;
+    grid-area: SearchBar;
 }
 
 header {
@@ -45,15 +41,23 @@ header {
     border-color: rgb(251, 251, 251);
 }
 
-input {
+search {
     grid-area: Searchbar;
+    display: flex;
+    flex-direction: column;
     border-style: solid;
     border-width: 2px;
     border-color: rgb(251, 251, 251);
 }
 
-button {
-    grid-area: Button;
+#TeamSelector {
+    grid-area: TeamSelector;
+    display: flex;
+}
+
+#SaveOrNew {
+    grid-area: SaveOrNew;
+    display: flex;
     padding-left: 5px;
     padding-top: 15px;
 }
@@ -90,7 +94,7 @@ button {
     text-decoration: none;
 }
 
-button.green {
+/*button.green {
     border-color: #3e3e3e;
     background: #5a5aa9;
 }
@@ -106,7 +110,7 @@ button:active {
 
 button:focus {
     outline: 0;
-}
+} */
 
 .result {
     /* max-width: 300px;
@@ -136,12 +140,12 @@ button:focus {
     border-width: 2px;
 }
 
-.AddedPokémon {
-    background-color: grey;
-    border-style: solid;
-    border-radius: 5px;
-    border-color: black;
-    border-width: 2px;
+.resultsprite {
+    grid-area: Image;
+}
+
+.resultname {
+    grid-area: Name;
 }
 
 .type {
@@ -159,22 +163,78 @@ button:focus {
     flex-direction: column;
 }
 
+.resultabilities {
+    grid-area: Abilities;
+}
+
+.ResultHPLabel {
+    grid-area: HPLabel;
+}
+
+.ResultAttackLabel {
+    grid-area: AttackLabel;
+}
+
+.ResultDefenseLabel {
+    grid-area: DefenseLabel;
+}
+
+.ResultSpecialAttackLabel {
+    grid-area: SpecialAttackLabel;
+}
+
+.ResultSpecialDefenseLabel {
+    grid-area: SpecialDefenseLabel;
+}
+
+.ResultSpeedLabel {
+    grid-area: SpeedLabel;
+}
+
+.ResultBaseHP {
+    grid-area: BaseHP;
+}
+
+.ResultBaseAttack {
+    grid-area: BaseAttack;
+}
+
+.ResultBaseDefense {
+    grid-area: BaseDefense;
+}
+
+.ResultBaseSpecialAttack {
+    grid-area: BaseSpecialAttack;
+}
+
+.ResultBaseSpecialDefense {
+    grid-area: BaseSpecialDefense;
+}
+
+.ResultBaseSpeed {
+    grid-area: BaseSpeed;
+}
+
 .AddedPokémon {
+    background-color: grey;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: black;
+    border-width: 2px;
     display: grid;
     font-size: 16px;
-    grid-template-columns: 1/6 1/6 1/6 1/6 1/6 1/6;
-    grid-template-rows: 40px auto 40px auto auto auto auto auto auto auto;
+    grid-template-columns: 1/5 1/5 1/5 1/5 1/5;
+    grid-template-rows: 40px auto 40px auto auto auto auto auto auto;
     grid-template-areas:
-        "Delete Name Nickname Level Types Types"
-        "Image Image Image Moves Moves Moves"
-        "Ability Ability Ability HeldItem HeldItem HeldItem"
-        "BaseHP HPIVs EVs Sliders Sliders TrueStat"
-        "BaseAttack AttackIVs EVs Sliders Sliders TrueStat"
-        "BaseDefense DefenseIVs EVs Sliders Sliders TrueStat"
-        "BaseSpecialAttack SpecialAttackIVs EVs Sliders Sliders TrueStat"
-        "BaseSpecialDefense SpecialDefenseIVs SpecialDefenseEVs SpecialDefenseEVSlider SpecialDefenseEVSlider SpecialDefense"
-        "BaseSpeed SpeedIVs SpeedEVs SpeedEVSlider SpeedEVSlider Speed"
-        "NameValue NameValue NameValue NameValue NameValue NameValue";
+        "Delete Name Nickname Level Types"
+        "Image Image Moves Moves Moves"
+        "Ability Ability HeldItem HeldItem Nature"
+        "BaseHP HPIVs HPEVs HPEVs HP"
+        "BaseAttack AttackIVs AttackEVs AttackEVs Attack"
+        "BaseDefense DefenseIVs DefenseEVs DefenseEVs Defense"
+        "BaseSpecialAttack SpecialAttackIVs SpecialAttackEVs SpecialAttackEVs SpecialAttack"
+        "BaseSpecialDefense SpecialDefenseIVs SpecialDefenseEVs SpecialDefenseEVs SpecialDefense"
+        "BaseSpeed SpeedIVs SpeedEVs SpeedEVs Speed";
 }
 
 .delete {
@@ -188,8 +248,16 @@ button:focus {
     text-align: center;
 }
 
+.PokémonNameValue {
+    display: none;
+}
+
 .NicknameBar {
     grid-area: Nickname;
+}
+
+.LevelBar {
+    grid-area: Level;
 }
 
 .AddedPokémonTypes {
@@ -219,4 +287,138 @@ button:focus {
     padding-top: 15px;
     grid-area: HeldItem;
     padding-bottom: 5px;
+}
+
+.NatureBar {
+    padding-top: 15px;
+    grid-area: Nature;
+    padding-bottom: 5px;
+}
+
+.AttackMultiplier {
+    display: none;
+}
+
+.DefenseMultiplier {
+    display: none;
+}
+
+.SpecialAttackMultiplier {
+    display: none;
+}
+
+.SpecialDefenseMultiplier {
+    display: none;
+}
+
+.SpeedMultiplier {
+    display: none;
+}
+
+.BaseHP {
+    grid-area: BaseHP;
+}
+
+.HPIVs {
+    grid-area: HPIVs;
+    display: flex;
+}
+
+.HPEVs {
+    grid-area: HPEVs;
+    display: flex;
+}
+
+.TrueHP {
+    grid-area: HP;
+}
+
+.BaseAttack {
+    grid-area: BaseAttack;
+}
+
+.AttackIVs {
+    grid-area: AttackIVs;
+    display: flex;
+}
+
+.AttackEVs {
+    grid-area: AttackEVs;
+    display: flex;
+}
+
+.TrueAttack {
+    grid-area: Attack;
+}
+
+.BaseDefense {
+    grid-area: BaseDefense;
+}
+
+.DefenseIVs {
+    grid-area: DefenseIVs;
+    display: flex;
+}
+
+.DefenseEVs {
+    grid-area: DefenseEVs;
+    display: flex;
+}
+
+.TrueDefense {
+    grid-area: Defense;
+}
+
+.BaseSpecialAttack {
+    grid-area: BaseSpecialAttack;
+}
+
+.SpecialAttackIVs {
+    grid-area: SpecialAttackIVs;
+    display: flex;
+}
+
+.SpecialAttackEVs {
+    grid-area: SpecialAttackEVs;
+    display: flex;
+}
+
+.TrueSpecialAttack {
+    grid-area: SpecialAttack;
+}
+
+.BaseSpecialDefense {
+    grid-area: BaseSpecialDefense;
+}
+
+.SpecialDefenseIVs {
+    grid-area: SpecialDefenseIVs;
+    display: flex;
+}
+
+.SpecialDefenseEVs {
+    grid-area: SpecialDefenseEVs;
+    display: flex;
+}
+
+.TrueSpecialDefense {
+    grid-area: SpecialDefense;
+}
+
+.BaseSpeed {
+    grid-area: BaseSpeed;
+}
+
+.SpeedIVs {
+    grid-area: SpeedIVs;
+    display: flex;
+}
+
+.SpeedEVs {
+    grid-area: SpeedEVs;
+    display: flex;
+}
+
+.TrueSpeed {
+    grid-area: Speed;
 }

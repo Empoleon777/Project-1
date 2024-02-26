@@ -24,9 +24,25 @@
         party of up to 6 Pokémon in a concise, simple manner.<br><br>
     </div>
 
-    <div class="widgets">
-        Search for a Pokémon by its name or National Dex number here:
-        <input id="searchterm" type="text" size="20" maxlength="20" autofocus value="" placeholder="Pokémon Name" />
+    <div class="search">
+        Search for a Pokémon by its name here:
+        <input id="searchterm" type="text" size="20" value="" placeholder="Pokémon Name" />
+    </div>
+
+    <div id="TeamControls">
+        <select id="TeamSelector">
+            <option value="N/A">---No team loaded---</option>
+        </select>
+        <input id="TeamName" type="text" size="20" value="" placeholder="Team Name" />
+    </div>
+
+    <div id="SaveOrNew">
+        <button id="TeamSave">
+            Save Team
+        </button>
+        <button id="NewTeam">
+            New Team
+        </button>
     </div>
 
     <div id="results">
@@ -56,7 +72,79 @@
     let items;
     let natures;
     let types;
+
     let memberCount = 0;
+    let deleteButtons;
+    let nicknameBars;
+    let levelBars;
+    let moveSelectors;
+    let abilityBars;
+    let itemBars;
+    let natureBars;
+    let teamID;
+
+    let selectedSpecies;
+    let chosenNicknames;
+    let chosenLevels;
+    let selectedMoves;
+    let selectedAbilities;
+    let selectedItems;
+    let selectedNatures;
+
+    let baseHPSections;
+    let HPIVBars;
+    let HPEVBars;
+    let HPEVSliders;
+    let trueHPSections;
+    let HPIVs;
+    let HPEVs;
+
+    let baseAttackSections;
+    let attackIVBars;
+    let attackEVBars;
+    let attackEVSliders;
+    let attackNatureMultipliers;
+    let trueAttackSections;
+    let attackIVs;
+    let attackEVs;
+
+    let baseDefenseSections;
+    let defenseIVBars;
+    let defenseEVBars;
+    let defenseEVSliders;
+    let defenseNatureMultipliers;
+    let trueDefenseSections;
+    let defenseIVs;
+    let defenseEVs;
+
+    let baseSpecialAttackSections;
+    let specialAttackIVBars;
+    let specialAttackEVBars;
+    let specialAttackEVSliders;
+    let specialAttackNatureMultipliers;
+    let trueSpecialAttackSections;
+    let specialAttackIVs;
+    let specialAttackEVs;
+
+    let baseSpecialDefenseSections;
+    let specialDefenseIVBars;
+    let specialDefenseEVBars;
+    let specialDefenseEVSliders;
+    let specialDefenseNatureMultipliers;
+    let trueSpecialDefenseSections;
+    let specialDefenseIVs;
+    let specialDefenseEVs;
+
+    let baseSpeedSections;
+    let speedIVBars;
+    let speedEVBars;
+    let speedEVSliders;
+    let speedNatureMultipliers;
+    let trueSpeedSections;
+    let speedIVs;
+    let speedEVs;
+
+    let teamSelector = document.querySelector("#TeamSelector");
 
     const init = () => {
         searchBar = document.querySelector("#searchterm");
@@ -72,6 +160,36 @@
         types = loadData(POKÉAPI_URL_TYPES);
 
         searchBar.addEventListener('change', search);
+        teamSelector.addEventListener('change', saveTeam);
+        document.querySelector("#TeamSave").addEventListener('click', saveTeam);
+
+        let isTeamSaved = false;
+
+        for (let i = 0; i < document.querySelector("#TeamSelector").options; i++) {
+            if (teamSelector.value === teamID) {
+                isTeamSaved = true;
+            }
+        }
+
+        document.querySelector("#NewTeam").addEventListener('click', () => {
+            if (!isteamSaved) {
+                if (confirm("This team is unsaved. Are you sure you want to create a new team?")) {
+                    content.innerHTML = "";
+                    teamID = generateTeamID();
+                }
+            }
+        });
+    }
+
+    const generateTeamID = () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+        let teamID = ""
+
+        for (let i = 0; i < 14; i++) {
+            teamID += Math.round(Math.random() * characters.length);
+        }
+
+        return teamID;
     }
 
     const handleResponse = async (response, parseResponse) => {
@@ -97,8 +215,20 @@
         }
     };
 
-    const sendPost = async (content) => {
-        const members = document.querySelectorAll(".member");
+    const saveTeam = async (content) => {
+        let savedTeam = "";
+
+        for (let i = 0; i < memberCount; i++) {
+            savedTeam += `nickname=${nicknameBars[i].value}&species=${selectedSpecies[i]}&item=${itemBars[i].value}&ability=${abilityBars[i].value}&nature=${natureBars[i].value}&HPIVs=${HPIVBars[i].value}&attackIVs=${attackIVBars[i].value}&defenseIVs=${defenseIVBars[i].value}&specialAttackIVs=${specialAttackIVBars[i].value}&specialDefenseIVs=${specialDefenseIVBars[i].value}&speedIVs=${speedIVBars[i].value}&HPEVs=${HPEVBars[i].value}&attackEVs=${attackEVBars[i].value}&defenseEVs=${defenseEVBars[i].value}&specialAttackEVs=${specialAttackEVBars[i].value}&specialDefenseEVs=${specialDefenseEVBars[i].value}&speedEVs=${speedEVBars[i].value}&move1=${moveSelectors[i * 4]}&move2=${moveSelectors[(i * 4) + 1]}&move3=${moveSelectors[(i * 4) + 2]}&move4=${moveSelectors[(i * 4) + 3]}`;
+        }
+        
+        let response = await fetch(teamID, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+            },
+            body: savedTeam,
+        });
 
         handleResponse(response);
     };
@@ -218,6 +348,7 @@
     const search = () => {
         results.innerHTML = "";
         let result = ""
+        let resultList;
 
         // First things first, we need to process the search term.
         let term = document.querySelector("#searchterm").value;
@@ -235,7 +366,7 @@
                 // The result is displayed. The name, types, and party sprite of the 
                 // Pokémon will be included.
                 line += `<div class='result'>`;
-                line += `<img src="${result["sprites"]["versions"]["generation-ix"]["icons"]["front_default"]}"`;
+                line += `<img class='resultsprite' src="${result["sprites"]["front_default"]}"`;
                 line += `" alt="">`
 
                 line += `<div class='resultname'>`;
@@ -271,7 +402,7 @@
                 line += `<p class="ResultBaseSpecialDefense">${result["stats"][4].base_stat}</p>`;
                 line += `<p class="ResultBaseSpeed">${result["stats"][5].base_stat}</p>`;
 
-                line += `<div>${result.name}</div>`;
+                line += `<div class="HiddenName">${result.name}</div>`;
 
                 line += `</div>`;
             }
@@ -300,7 +431,7 @@
                 typeBlocks[i].style.borderColor = "#f9c52d";
             }
             else if (typeBlocks[i].innerHTML == "GRASS") {
-                typeBlocks[i].style.backgroundColor = "86cd54";
+                typeBlocks[i].style.backgroundColor = "#86cd54";
                 typeBlocks[i].style.borderColor = "#86cd54";
             }
             else if (typeBlocks[i].innerHTML == "ICE") {
@@ -356,11 +487,631 @@
                 typeBlocks[i].style.borderColor = "#f1b6f7";
             }
         }
+
+        resultList = document.querySelectorAll(".result");
+
+        for (let i = 0; i < resultList.length; i++) {
+            resultList[i].onclick = () => {
+                addPokémon(getIndividualItem(`${POKÉAPI_URL_POKÉMON}/${resultList[i].HiddenName}`));
+            }
+        }
     };
 
     // Adds a Pokémon to the content bar.
     function addPokémon(pokémon) {
-        memberCount++;
+        if (memberCount === 6) {
+            alert("Your team is full!");
+        }
+        else {
+            memberCount++;
+
+            let result = pokémon;
+            let line = "";
+
+            line += `<div class="AddedPokémon">`
+
+            // A delete button is added first.
+            line += `<div class='DeleteButton'>`;
+            line += `<button type="button" class="delete">Delete Pokémon</button>`;
+            line += `</div>`;
+
+            // The added Pokémon's name is stored in its own section.
+            line += `<div class='AddedPokémonName'>`;
+            line += `${reformatName(result.name)}`;
+            line += `<div class='PokémonNameValue'>`;
+            line += `${result.name}`;
+            line += `</div>`;
+            line += `</div>`;
+
+            // A nickname bar is added.
+            line += `<div class='NicknameBar'>`;
+            line += `Nickname: <input class="nickname" type="text" size="20" maxlength="20" autofocus value="" placeholder="Nickname"/>`;
+            line += `</div>`;
+
+            // A level bar is added.
+            line += `<div class='LevelBar'>`;
+            line += `Nickname: <input class="level" type="number" min="1" max="100" size="20" placeholder="Level" value="100"/>`;
+            line += `</div>`;
+
+            // We repeat the same code to display the Pokémon's types.
+            line += `<div class='AddedPokémonTypes'>`;
+
+            for (let i = 0; i < result["types"].length; i++) {
+                let type = result["types"][i]["type"].name;
+                line += `<div class='type'>`;
+                line += `${type.toUpperCase()}`;
+                line += `</div>`;
+            }
+
+            line += `</div>`;
+
+            // The party sprite is also added.
+            line += `<div class='AddedPokémonSprite'>`;
+            line += `<img src="${result["sprites"]["front_default"]}" alt="">`;
+            line += `</div>`;
+
+            // We start adding the moves. Below, we have a loop that will create the 
+            // moveslots.
+            line += `<div class='Moves'>`;
+            line += `Moves`;
+
+            for (let i = 1; i <= 4; i++) {
+                line += `<select class="moveslot">`;
+                line += `<option value="None">--Select Move Here--</option>`;
+
+                for (let i = 0; i < result["moves"].length; i++) {
+                    let moveName = result["moves"][i]["move"].name;
+                    line += `<option value="${moveName}">${reformatName(moveName)}</option>`;
+                }
+
+                line += `</select>`;
+            }
+
+            line += `</div>`;
+
+            // We will then grab the abilities and put them in their own dropdown.
+            line += `<div class='AbilityBar'>`;
+            line += `Ability: `;
+            line += `<select class="abilities">`;
+
+            for (let i = 0; i < result["abilities"].length; i++) {
+                let abilityName = result["abilities"][i]["ability"].name;
+                line += `<option value="${abilityName}">${reformatName(abilityName)}</option>`;
+            }
+
+            line += `</select>`;
+            line += `</div>`;
+
+
+            // The berries and items will be assembled in another dropdown.
+            line += `<div class='ItemBar'>`;
+            line += `Held Item: `;
+            line += `<select class="items">`;
+            line += `<option value="None">--Select Held Item Here--</option>`;
+
+            // This loop grabs the berries from the object we constructed and drops 
+            // them into the held item selector.
+            for (let i = 0; i < berries["count"]; i++) {
+                line += `<option value="${berries["results"][i].name} berry">${reformatName(berries["results"][i].name)} Berry</option>`;
+            }
+
+            // This loop does the same for the items.
+            for (let i = 0; i < items["count"]; i++) {
+                line += `<option value="${items["results"][i].name}">${reformatName(items["results"][i].name)}</option>`;
+            }
+
+            line += `</select>`;
+
+            line += `<div class="NatureBar">`;
+            line += `Nature: `;
+            line += `<select class="natures">`;
+
+            // This loop adds the natures.
+            for (let i = 0; i < natures.count; i++) {
+                line += `<option value="${natures["results"][i].name} berry">${reformatName(natures["results"][i].name)}</option>`;
+            }
+
+            line += `</select>`;
+            line += `<div class="AttackMultiplier">1.0</div>`;
+            line += `<div class="DefenseMultiplier">1.0</div>`;
+            line += `<div class="SpecialAttackMultiplier">1.0</div>`;
+            line += `<div class="SpecialDefenseMultiplier">1.0</div>`;
+            line += `<div class="SpeedMultiplier">1.0</div>`;
+            line += `</div>`;
+
+            line += `<div class="BaseHP">`;
+            line += `${result["stats"][0].base_stat}`;
+            line += `</div>`;
+            line += `<div class="HPIVs">`;
+            line += `<input class="HPIVInput" type="number" min="0" max="31" size="20" placeholder="HPIVs" value="31"/>`;
+            line += `</div>`;
+            line += `<div class="HPEVs">`;
+            line += `<input class="HPEVInput" type="number" min="0" max="252" size="20" placeholder="HPEVs" value="0"/>`;
+            line += `<input class="HPEVSlider" type="range" min="0" max="252" value="0">`;
+            line += `</div>`;
+            line += `<div class="TrueHP">`;
+            line += `</div>`;
+
+            line += `<div class="BaseAttack">`;
+            line += `${result["stats"][1].base_stat}`;
+            line += `</div>`;
+            line += `<div class="AttackIVs">`;
+            line += `<input class="AttackIVInput" type="number" min="0" max="31" size="20" placeholder="AttackIVs" value="31"/>`;
+            line += `</div>`;
+            line += `<div class="AttackEVs">`;
+            line += `<input class="AttackEVInput" type="number" min="0" max="252" size="20" placeholder="AttackEVs" value="0"/>`;
+            line += `<input class="AttackEVSlider" type="range" min="0" max="252" value="0">`;
+            line += `</div>`;
+            line += `<div class="TrueAttack">`;
+            line += `</div>`;
+
+            line += `<div class="BaseDefense">`;
+            line += `${result["stats"][2].base_stat}`;
+            line += `</div>`;
+            line += `<div class="DefenseIVs">`;
+            line += `<input class="DefenseIVInput" type="number" min="0" max="31" size="20" placeholder="DefenseIVs" value="31"/>`;
+            line += `</div>`;
+            line += `<div class="DefenseEVs">`;
+            line += `<input class="DefenseEVInput" type="number" min="0" max="252" size="20" placeholder="DefenseEVs" value="0"/>`;
+            line += `<input class="DefenseEVSlider" type="range" min="0" max="252" value="0">`;
+            line += `</div>`;
+            line += `<div class="TrueDefense">`;
+            line += `</div>`;
+
+            line += `<div class="BaseSpecialAttack">`;
+            line += `${result["stats"][3].base_stat}`;
+            line += `</div>`;
+            line += `<div class="SpecialAttackIVs">`;
+            line += `<input class="SpecialAttackIVInput" type="number" min="0" max="31" size="20" placeholder="SpecialAttackIVs" value="31"/>`;
+            line += `</div>`;
+            line += `<div class="SpecialAttackEVs">`;
+            line += `<input class="SpecialAttackEVInput" type="number" min="0" max="252" size="20" placeholder="SpecialAttackEVs" value="0"/>`;
+            line += `<input class="SpecialAttackEVSlider" type="range" min="0" max="252" value="0">`;
+            line += `</div>`;
+            line += `<div class="TrueSpecialAttack">`;
+            line += `</div>`;
+
+            line += `<div class="BaseSpecialDefense">`;
+            line += `${result["stats"][4].base_stat}`;
+            line += `</div>`;
+            line += `<div class="SpecialDefenseIVs">`;
+            line += `<input class="SpecialDefenseIVInput" type="number" min="0" max="31" size="20" placeholder="SpecialDefenseIVs" value="31"/>`;
+            line += `</div>`;
+            line += `<div class="SpecialDefenseEVs">`;
+            line += `<input class="SpecialDefenseEVInput" type="number" min="0" max="252" size="20" placeholder="SpecialDefenseEVs" value="0"/>`;
+            line += `<input class="SpecialDefenseEVSlider" type="range" min="0" max="252" value="0">`;
+            line += `</div>`;
+            line += `<div class="TrueSpecialDefense">`;
+            line += `</div>`;
+
+            line += `<div class="BaseSpeed">`;
+            line += `${result["stats"][5].base_stat}`;
+            line += `</div>`;
+            line += `<div class="SpeedIVs">`;
+            line += `<input class="SpeedIVInput" type="number" min="0" max="31" size="20" placeholder="SpeedIVs" value="31"/>`;
+            line += `</div>`;
+            line += `<div class="SpeedEVs">`;
+            line += `<input class="SpeedEVInput" type="number" min="0" max="252" size="20" placeholder="SpeedEVs" value="0"/>`;
+            line += `<input class="SpeedEVSlider" type="range" min="0" max="252" value="0">`;
+            line += `</div>`;
+            line += `<div class="TrueSpeed">`;
+            line += `</div>`;
+
+            line += `</div>`;
+
+            content.innerHTML += line;
+
+            // We repeat all the same code to have the types display properly.
+            let typeBlocks = document.querySelectorAll(".type");
+
+            for (let i = 0; i < typeBlocks.length; i++) {
+                if (typeBlocks[i].innerHTML == "NORMAL") {
+                    typeBlocks[i].style.backgroundColor = "#aca594";
+                    typeBlocks[i].style.borderColor = "#aca594";
+                }
+                else if (typeBlocks[i].innerHTML == "FIRE") {
+                    typeBlocks[i].style.backgroundColor = "#ec502a";
+                    typeBlocks[i].style.borderColor = "#ec502a";
+                }
+                else if (typeBlocks[i].innerHTML == "WATER") {
+                    typeBlocks[i].style.backgroundColor = "#4f9eff";
+                    typeBlocks[i].style.borderColor = "#4f9eff";
+                }
+                else if (typeBlocks[i].innerHTML == "ELECTRIC") {
+                    typeBlocks[i].style.backgroundColor = "#f9c52d";
+                    typeBlocks[i].style.borderColor = "#f9c52d";
+                }
+                else if (typeBlocks[i].innerHTML == "GRASS") {
+                    typeBlocks[i].style.backgroundColor = "#86cd54";
+                    typeBlocks[i].style.borderColor = "#86cd54";
+                }
+                else if (typeBlocks[i].innerHTML == "ICE") {
+                    typeBlocks[i].style.backgroundColor = "#6fcfe8";
+                    typeBlocks[i].style.borderColor = "#6fcfe8";
+                }
+                else if (typeBlocks[i].innerHTML == "FIGHTING") {
+                    typeBlocks[i].style.backgroundColor = "#9e5137";
+                    typeBlocks[i].style.borderColor = "#9e5137";
+                }
+                else if (typeBlocks[i].innerHTML == "POISON") {
+                    typeBlocks[i].style.backgroundColor = "#ae5ba4";
+                    typeBlocks[i].style.borderColor = "#ae5ba4";
+                }
+                else if (typeBlocks[i].innerHTML == "GROUND") {
+                    typeBlocks[i].style.backgroundColor = "#e0cb8b";
+                    typeBlocks[i].style.borderColor = "#e0cb8b";
+                }
+                else if (typeBlocks[i].innerHTML == "FLYING") {
+                    typeBlocks[i].style.backgroundColor = "#9faef7";
+                    typeBlocks[i].style.borderColor = "#9faef7";
+                }
+                else if (typeBlocks[i].innerHTML == "PSYCHIC") {
+                    typeBlocks[i].style.backgroundColor = "#f573a4";
+                    typeBlocks[i].style.borderColor = "#f573a4";
+                }
+                else if (typeBlocks[i].innerHTML == "BUG") {
+                    typeBlocks[i].style.backgroundColor = "#aebc21";
+                    typeBlocks[i].style.borderColor = "#aebc21";
+                }
+                else if (typeBlocks[i].innerHTML == "ROCK") {
+                    typeBlocks[i].style.backgroundColor = "#baa459";
+                    typeBlocks[i].style.borderColor = "#baa459";
+                }
+                else if (typeBlocks[i].innerHTML == "GHOST") {
+                    typeBlocks[i].style.backgroundColor = "#6465b5";
+                    typeBlocks[i].style.borderColor = "#6465b5";
+                }
+                else if (typeBlocks[i].innerHTML == "DRAGON") {
+                    typeBlocks[i].style.backgroundColor = "#7a66e7";
+                    typeBlocks[i].style.borderColor = "#7a66e7";
+                }
+                else if (typeBlocks[i].innerHTML == "DARK") {
+                    typeBlocks[i].style.backgroundColor = "#715a4a";
+                    typeBlocks[i].style.borderColor = "#715a4a";
+                }
+                else if (typeBlocks[i].innerHTML == "STEEL") {
+                    typeBlocks[i].style.backgroundColor = "#adadc6";
+                    typeBlocks[i].style.borderColor = "#adadc6";
+                }
+                else {
+                    typeBlocks[i].style.backgroundColor = "#f1b6f7";
+                    typeBlocks[i].style.borderColor = "#f1b6f7";
+                }
+            }
+
+            deleteButtons = document.querySelectorAll(".delete");
+            nicknameBars = document.querySelectorAll(".AddedPokémonName");
+            levelBars = document.querySelectorAll(".LevelBar");
+            moveSelectors = document.querySelectorAll(".moveslot");
+            abilityBars = document.querySelectorAll(".AbilityBar");
+            itemBars = document.querySelectorAll(".ItemBar");
+            natureBars = document.querySelectorAll(".NatureBar");
+            baseHPSections = document.querySelectorAll(".BaseHP");
+            HPIVBars = document.querySelectorAll(".HPIVInput");
+            HPEVBar = document.querySelectorAll(".HPEVInput");
+            HPEVSliders = document.querySelectorAll(".HPEVSlider");
+            trueHPSections = document.querySelectorAll(".TrueHP");
+            baseAttackSections = document.querySelectorAll(".BaseAttack");
+            attackIVBars = document.querySelectorAll(".AttackIVInput");
+            attackEVBars = document.querySelectorAll(".AttackEVInput");
+            attackEVSliders = document.querySelectorAll(".AttackEVSlider");
+            attackNatureMultipliers = document.querySelectorAll(".AttackMultiplier");
+            trueAttackSections = document.querySelectorAll(".TrueAttack");
+            baseDefenseSections = document.querySelectorAll(".BaseDefense");
+            defenseIVBars = document.querySelectorAll(".DefenseIVInput");
+            defenseEVBars = document.querySelectorAll(".DefenseEVInput");
+            defenseEVSliders = document.querySelectorAll(".DefenseEVSlider");
+            defenseNatureMultipliers = document.querySelectorAll(".DefenseMultiplier");
+            trueDefenseSections = document.querySelectorAll(".TrueDefense");
+            baseSpecialAttackSections = document.querySelectorAll(".BaseSpecialAttack");
+            specialAttackIVBars = document.querySelectorAll(".SpecialAttackIVInput");
+            specialAttackEVBars = document.querySelectorAll(".SpecialAttackEVInput");
+            specialAttackEVSliders = document.querySelectorAll(".SpecialAttackEVSlider");
+            specialAttackNatureMultipliers = document.querySelectorAll(".SpecialAttackMultiplier");
+            trueSpecialAttackSections = document.querySelectorAll(".TrueSpecialAttack");
+            baseSpecialDefenseSections = document.querySelectorAll(".BaseSpecialDefense");
+            specialDefenseIVBars = document.querySelectorAll(".SpecialDefenseIVInput");
+            specialDefenseEVBars = document.querySelectorAll(".SpecialDefenseEVInput");
+            specialDefenseEVSliders = document.querySelectorAll(".SpecialDefenseEVSlider");
+            specialDefenseNatureMultipliers = document.querySelectorAll(".SpecialDefenseMultiplier");
+            trueSpecialDefenseSections = document.querySelectorAll(".TrueSpecialDefense");
+            baseSpeedSections = document.querySelectorAll(".BaseSpeed");
+            speedIVBars = document.querySelectorAll(".SpeedIVInput");
+            speedEVBars = document.querySelectorAll(".SpeedEVInput");
+            speedEVSliders = document.querySelectorAll(".SpeedEVSlider");
+            speedNatureMultipliers = document.querySelectorAll(".SpeedMultiplier");
+            trueSpeedSections = document.querySelectorAll(".TrueSpeed");
+
+            for (let i = 0; i < deleteButtons.length; i++) {
+                deleteButtons[i].onclick = (i) => {
+                    deletePokémon;
+                }
+            }
+
+            levelBars[memberCount - 1].onchange = () => {
+                trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
+                trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
+                trueDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[memberCount - 1].innerHTML) + defenseIVBars[memberCount - 1].value + Math.floor(defenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(defenseNatureMultipliers[memberCount - 1].innerHTML));
+                trueSpecialAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[memberCount - 1].innerHTML) + specialAttackIVBars[memberCount - 1].value + Math.floor(specialAttackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialAttackNatureMultipliers[memberCount - 1].innerHTML));
+                trueSpecialDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialDefenseSections[memberCount - 1].innerHTML) + specialDefenseIVBars[memberCount - 1].value + Math.floor(specialDefenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialDefenseNatureMultipliers[memberCount - 1].innerHTML));
+                trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            natureBars[memberCount - 1].value = serious;
+
+            natureBars[memberCount - 1].onchange = () => {
+                attackNatureMultipliers[memberCount - 1].innerHTML = 1.0;
+                defenseNatureMultipliers[memberCount - 1].innerHTML = 1.0;
+                specialAttackNatureMultipliers[memberCount - 1].innerHTML = 1.0;
+                specialDefenseNatureMultipliers[memberCount - 1].innerHTML = 1.0;
+                speedNatureMultipliers[memberCount - 1].innerHTML = 1.0;
+
+                newNature = getIndividualItem(`${POKÉAPI_URL_NATURES}/${natureBars[memberCount - 1].value}`);
+
+                if (newNature["increased_stat"].name === "attack") {
+                    attackNatureMultipliers[memberCount - 1].innerHTML = 1.1;
+                }
+                else if (newNature["increased_stat"].name === "defense") {
+                    defenseNatureMultipliers[memberCount - 1].innerHTML = 1.1;
+                }
+                else if (newNature["increased_stat"].name === "special-attack") {
+                    specialAttackNatureMultipliers[memberCount - 1].innerHTML = 1.1;
+                }
+                else if (newNature["increased_stat"].name === "special-defense") {
+                    specialDefenseNatureMultipliers[memberCount - 1].innerHTML = 1.1;
+                }
+                else if (newNature["increased_stat"].name === "speed") {
+                    speedNatureMultipliers[memberCount - 1].innerHTML = 1.1;
+                }
+
+                if (newNature["decreased_stat"].name === "attack") {
+                    attackNatureMultipliers[memberCount - 1].innerHTML = 0.9;
+                }
+                else if (newNature["decreased_stat"].name === "defense") {
+                    defenseNatureMultipliers[memberCount - 1].innerHTML = 0.9;
+                }
+                else if (newNature["decreased_stat"].name === "special-attack") {
+                    specialAttackNatureMultipliers[memberCount - 1].innerHTML = 0.9;
+                }
+                else if (newNature["decreased_stat"].name === "special-defense") {
+                    specialDefenseNatureMultipliers[memberCount - 1].innerHTML = 0.9;
+                }
+                else if (newNature["decreased_stat"].name === "speed") {
+                    speedNatureMultipliers[memberCount - 1].innerHTML = 0.9;
+                }
+
+                trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
+                trueDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[memberCount - 1].innerHTML) + defenseIVBars[memberCount - 1].value + Math.floor(defenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(defenseNatureMultipliers[memberCount - 1].innerHTML));
+                trueSpecialAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[memberCount - 1].innerHTML) + specialAttackIVBars[memberCount - 1].value + Math.floor(specialAttackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialAttackNatureMultipliers[memberCount - 1].innerHTML));
+                trueSpecialDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialDefenseSections[memberCount - 1].innerHTML) + specialDefenseIVBars[memberCount - 1].value + Math.floor(specialDefenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialDefenseNatureMultipliers[memberCount - 1].innerHTML));
+                trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            HPEVBars[memberCount - 1].onchange = () => {
+                HPEVSliders[memberCount - 1].value = HPEVBars[memberCount - 1].value;
+                trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
+            }
+
+            attackEVBars[memberCount - 1].onchange = () => {
+                attackEVSliders[memberCount - 1].value = attackEVBars[memberCount - 1].value;
+                trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            defenseEVBars[memberCount - 1].onchange = () => {
+                defenseEVSliders[memberCount - 1].value = defenseEVBars[memberCount - 1].value;
+                trueDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[memberCount - 1].innerHTML) + defenseIVBars[memberCount - 1].value + Math.floor(defenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(defenseNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            specialAttackEVBars[memberCount - 1].onchange = () => {
+                specialAttackEVSliders[memberCount - 1].value = specialAttackEVBars[memberCount - 1].value;
+                trueSpecialAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[memberCount - 1].innerHTML) + specialAttackIVBars[memberCount - 1].value + Math.floor(specialAttackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialAttackNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            specialDefenseEVBars[memberCount - 1].onchange = () => {
+                specialDefenseEVSliders[memberCount - 1].value = specialDefenseEVBars[memberCount - 1].value;
+                trueSpecialDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialDefenseSections[memberCount - 1].innerHTML) + specialDefenseIVBars[memberCount - 1].value + Math.floor(specialDefenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialDefenseNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            speedEVBars[memberCount - 1].onchange = () => {
+                speedEVSliders[memberCount - 1].value = speedEVBars[memberCount - 1].value;
+                trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            HPEVSliders[memberCount - 1].onchange = () => {
+                HPEVBars[memberCount - 1].value = HPEVSliders[memberCount - 1].value;
+                trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
+            }
+
+            attackEVSliders[memberCount - 1].onchange = () => {
+                attackEVBars[memberCount - 1].value = attackEVSliders[memberCount - 1].value;
+                trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            defenseEVSliders[memberCount - 1].onchange = () => {
+                defenseEVBars[memberCount - 1].value = defenseEVSliders[memberCount - 1].value;
+                trueDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[memberCount - 1].innerHTML) + defenseIVBars[memberCount - 1].value + Math.floor(defenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(defenseNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            specialAttackEVSliders[memberCount - 1].onchange = () => {
+                specialAttackEVBars[memberCount - 1].value = specialAttackEVSliders[memberCount - 1].value;
+                trueSpecialAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[memberCount - 1].innerHTML) + specialAttackIVBars[memberCount - 1].value + Math.floor(specialAttackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialAttackNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            specialDefenseEVSliders[memberCount - 1].onchange = () => {
+                specialDefenseEVBars[memberCount - 1].value = specialDefenseEVSliders[memberCount - 1].value;
+                trueSpecialDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialDefenseSections[memberCount - 1].innerHTML) + specialDefenseIVBars[memberCount - 1].value + Math.floor(specialDefenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialDefenseNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            speedEVSliders[memberCount - 1].onchange = () => {
+                speedEVBars[memberCount - 1].value = speedEVSliders[memberCount - 1].value;
+                trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            HPIVBars[memberCount - 1].onchange = () => {
+                trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
+            }
+
+            attackIVBars[memberCount - 1].onchange = () => {
+                trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            defenseIVBars[memberCount - 1].onchange = () => {
+                trueDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[memberCount - 1].innerHTML) + defenseIVBars[memberCount - 1].value + Math.floor(defenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(defenseNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            specialAttackIVBars[memberCount - 1].onchange = () => {
+                trueSpecialAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[memberCount - 1].innerHTML) + specialAttackIVBars[memberCount - 1].value + Math.floor(specialAttackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialAttackNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            specialDefenseIVBars[memberCount - 1].onchange = () => {
+                trueSpecialDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialDefenseSections[memberCount - 1].innerHTML) + specialDefenseIVBars[memberCount - 1].value + Math.floor(specialDefenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialDefenseNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            speedIVBars[memberCount - 1].onchange = () => {
+                trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
+            }
+
+            trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
+            trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
+            trueDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[memberCount - 1].innerHTML) + defenseIVBars[memberCount - 1].value + Math.floor(defenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(defenseNatureMultipliers[memberCount - 1].innerHTML));
+            trueSpecialAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[memberCount - 1].innerHTML) + specialAttackIVBars[memberCount - 1].value + Math.floor(specialAttackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialAttackNatureMultipliers[memberCount - 1].innerHTML));
+            trueSpecialDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialDefenseSections[memberCount - 1].innerHTML) + specialDefenseIVBars[memberCount - 1].value + Math.floor(specialDefenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialDefenseNatureMultipliers[memberCount - 1].innerHTML));
+            trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
+        }
+    }
+
+    const deletePokémon = (slot) => {
+        selectedSpecies = document.querySelectorAll(".PokémonNameValue");
+
+        for (let i = 0; i < memberCount; i++) {
+            chosenNicknames.push(nicknameBars[i].value);
+            chosenLevels.push(levelBars[i].value);
+            selectedMoves.push(moveSelectors[i * 4].value);
+            selectedMoves.push(moveSelectors[(i * 4) + 1].value);
+            selectedMoves.push(moveSelectors[(i * 4) + 2].value);
+            selectedMoves.push(moveSelectors[(i * 4) + 3].value);
+            selectedAbilities.push(abilityBars[i].value);
+            selectedItems.push(itemBars[i].value);
+            selectedNatures.push(natureBars[i].value);
+            HPIVs.push(HPIVBars[i].value);
+            HPEVs.push(HPEVBars[i].value);
+            attackIVs.push(attackIVBars[i].value);
+            attackEVs.push(attackEVBars[i].value);
+            defenseIVs.push(defenseIVBars[i].value);
+            defenseEVs.push(defenseEVBars[i].value);
+            specialAttackIVs.push(specialAttackIVBars[i].value);
+            specialAttackEVs.push(specialAttackEVBars[i].value);
+            specialDefenseIVs.push(specialDefenseIVBars[i].value);
+            specialDefenseEVs.push(specialDefenseEVBars[i].value);
+            speedIVs.push(speedIVBars[i].value);
+            speedEVs.push(speedEVBars[i].value);
+        }
+
+        content.innerHTML = "";
+
+        selectedSpecies.splice(slot, 1);
+        chosenNicknames.splice(slot, 1);
+        chosenLevels.splice(slot, 1);
+        selectedMoves.splice(slot, 4);
+        selectedAbilities.splice(slot, 1);
+        selectedItems.splice(slot, 1);
+        selectedNatures.splice(slot, 1);
+        HPIVs.splice(slot, 1);
+        HPEVs.splice(slot, 1);
+        attackIVs.splice(slot, 1);
+        attackEVs.splice(slot, 1);
+        defenseIVs.splice(slot, 1);
+        defenseEVs.splice(slot, 1);
+        specialAttackIVs.splice(slot, 1);
+        specialAttackEVs.splice(slot, 1);
+        specialDefenseIVs.splice(slot, 1);
+        specialDefenseEVs.splice(slot, 1);
+        speedIVs.splice(slot, 1);
+        speedEVs.splice(slot, 1);
+
+        let membersLeft = document.querySelectorAll(".added").length;
+        memberCount = 0;
+
+        for (let i = 0; i < membersLeft; i++) {
+            addPokémon(getIndividualItem(`${POKÉAPI_URL_POKÉMON}/${selectedSpecies[i]}`));
+        }
+
+        for (let i = 0; i < memberCount; i++) {
+            nicknameBars[i].value = chosenNicknames[i];
+            levelBars[i].value = chosenLevels[i];
+            moveSelectors[i * 4].value = selectedMoves[i * 4];
+            moveSelectors[(i * 4) + 1].value = selectedMoves[(i * 4) + 1];
+            moveSelectors[(i * 4) + 2].value = selectedMoves[(i * 4) + 2];
+            moveSelectors[(i * 4) + 3].value = selectedMoves[(i * 4) + 3];
+            abilityBars[i].value = selectedAbilities[i];
+            itemBars[i].value = selectedItems[i];
+            natureBars[i].value = selectedNatures[i];
+            HPIVBars[i].value = HPIVs[i];
+            HPEVBars[i].value = HPEVs[i];
+            HPEVSliders.value = HPEVs[i];
+            attackIVBars[i].value = attackIVs[i];
+            attackEVBars[i].value = attackEVs[i];
+            attackEVSliders[i].value = attackEVs[i];
+            defenseIVBars[i].value = defenseIVs[i];
+            defenseEVBars[i].value = defenseEVs[i];
+            defenseEVSliders[i].value = defenseEVSliders[i];
+            specialAttackIVBars[i].value = specialAttackIVs[i];
+            specialAttackEVBars[i].value = specialAttackEVs[i];
+            specialAttackEVSliders[i].value = specialAttackEVs[i];
+            specialDefenseIVBars[i].value = specialDefenseIVs[i];
+            specialDefenseEVBars[i].value = specialDefenseEVs[i];
+            specialDefenseEVSliders[i].value = specialDefenseEVs[i];
+            speedIVBars[i].value = speedIVs[i];
+            speedEVBars[i].value = speedEVs[i];
+            speedEVSliders[i].value = speedEVs[i];
+
+            attackNatureMultipliers[i].innerHTML = 1.0;
+            defenseNatureMultipliers[i].innerHTML = 1.0;
+            specialAttackNatureMultipliers[i].innerHTML = 1.0;
+            specialDefenseNatureMultipliers[i].innerHTML = 1.0;
+            speedNatureMultipliers[i].innerHTML = 1.0;
+
+            nature = getIndividualItem(`${POKÉAPI_URL_NATURES}/${natureBars[i]}`);
+
+            if (nature["increased_stat"].name === "attack") {
+                attackNatureMultipliers[i].innerHTML = 1.1;
+            }
+            else if (nature["increased_stat"].name === "defense") {
+                defenseNatureMultipliers[i].innerHTML = 1.1;
+            }
+            else if (nature["increased_stat"].name === "special-attack") {
+                specialAttackNatureMultipliers[i].innerHTML = 1.1;
+            }
+            else if (nature["increased_stat"].name === "special-defense") {
+                specialDefenseNatureMultipliers[i].innerHTML = 1.1;
+            }
+            else if (nature["increased_stat"].name === "speed") {
+                speedNatureMultipliers[i].innerHTML = 1.1;
+            }
+
+            if (nature["decreased_stat"].name === "attack") {
+                attackNatureMultipliers[i].innerHTML = 0.9;
+            }
+            else if (nature["decreased_stat"].name === "defense") {
+                defenseNatureMultipliers[i].innerHTML = 0.9;
+            }
+            else if (nature["decreased_stat"].name === "special-attack") {
+                specialAttackNatureMultipliers[i].innerHTML = 0.9;
+            }
+            else if (nature["decreased_stat"].name === "special-defense") {
+                specialDefenseNatureMultipliers[i].innerHTML = 0.9;
+            }
+            else if (nature["decreased_stat"].name === "speed") {
+                speedNatureMultipliers[i].innerHTML = 0.9;
+            }
+
+            trueHPSections[i].innerHTML = Math.floor(((2 * Number(baseHPSections[i].innerHTML) + HPIVs[i] + Math.floor(HPEVs[i] / 4)) * chosenLevels[i]) / 100) + chosenLevels[i] + 10;
+            trueAttackSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[i].innerHTML) + attackIVs[i] + Math.floor(attackEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(attackNatureMultipliers[i].innerHTML));
+            trueDefenseSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[i].innerHTML) + defenseIVs[i] + Math.floor(defenseEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(defenseNatureMultipliers[i].innerHTML));
+            trueSpecialAttackSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[i].innerHTML) + specialAttackIVs[i] + Math.floor(specialAttackEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(specialAttackNatureMultipliers[i].innerHTML));
+            trueSpecialDefenseSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialDefenseSections[i].innerHTML) + specialDefenseIVs[i] + Math.floor(specialDefenseEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(specialDefenseNatureMultipliers[i].innerHTML));
+            trueSpeedSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[i].innerHTML) + speedIVs[i] + Math.floor(speedEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(speedNatureMultipliers[i].innerHTML));
+        }
     }
 
     window.onload = init;
