@@ -42,7 +42,7 @@ const parseBody = (request, response, handler) => {
 
 const handlePost = (request, response, parsedUrl) => {
     if (parsedUrl.pathname === '/addUser') {
-        parseBody(request, response, jsonHandler.addUser);
+        parseBody(request, response, jsonHandler.addTeam);
     }
 };
 
@@ -51,8 +51,6 @@ const handleGet = (request, response, parsedUrl) => {
         htmlHandler.getIndex(request, response);
     } else if (parsedUrl.pathname === '/style.css') {
         htmlHandler.getCSS(request, response);
-    } else if (parsedUrl.pathname === '/getUsers') {
-        jsonHandler.getUsers(request, response);
     } else {
         jsonHandler.notFound(request, response);
     }

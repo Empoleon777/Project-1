@@ -12,5 +12,9 @@ const getIndex = (request, response) => {
     respond(request, response, index, 'text/html');
 };
 
+const getCSS = (request, response) => {
+    respond(request, response, css, 'text/css');
+};
+
 module.exports.getIndex = getIndex;
 module.exports.getCSS = getCSS;

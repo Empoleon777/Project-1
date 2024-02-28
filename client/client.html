@@ -6,14 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teambuilder 2: Electric Boogaloo</title>
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
 </head>
 
 <body>
     <header>
-        <img src="Images/UltraBall.png" alt="">
+        <img src="../Images/UltraBall.png" alt="">
         THE POKEMON TEAM OUTLINER
-        <img src="Images/UltraBall.png" alt="">
+        <img src="../Images/UltraBall.png" alt="">
     </header>
 
     <div id="Description">
@@ -64,6 +64,8 @@
 
     let searchBar;
     let searchButton;
+    let teamName;
+    let teamID;
     let results;
     let content;
     let pokémon;
@@ -81,7 +83,6 @@
     let abilityBars;
     let itemBars;
     let natureBars;
-    let teamID;
 
     let selectedSpecies;
     let chosenNicknames;
@@ -151,6 +152,7 @@
         searchButton = document.querySelector("#search");
         results = document.querySelector("#results");
         content = document.querySelector("#content");
+        teamName = document.querySelector("#TeamName");
 
         pokémon = loadData(POKÉAPI_URL_POKÉMON);
         moves = loadData(POKÉAPI_URL_MOVES);
@@ -213,15 +215,54 @@
                 console.log(`${response.status}`);
                 break;
         }
+
+        if (parseResponse && response.status === 200) {
+            let obj = await response.json();
+            displayLoadedTeam(json.parse(obj));
+        }
     };
 
     const saveTeam = async (content) => {
-        let savedTeam = "";
+        let savedTeam = {
+            'teamID': teamID,
+            'teamName': teamName,
+            'team': {}
+        }
 
         for (let i = 0; i < memberCount; i++) {
-            savedTeam += `nickname=${nicknameBars[i].value}&species=${selectedSpecies[i]}&item=${itemBars[i].value}&ability=${abilityBars[i].value}&nature=${natureBars[i].value}&HPIVs=${HPIVBars[i].value}&attackIVs=${attackIVBars[i].value}&defenseIVs=${defenseIVBars[i].value}&specialAttackIVs=${specialAttackIVBars[i].value}&specialDefenseIVs=${specialDefenseIVBars[i].value}&speedIVs=${speedIVBars[i].value}&HPEVs=${HPEVBars[i].value}&attackEVs=${attackEVBars[i].value}&defenseEVs=${defenseEVBars[i].value}&specialAttackEVs=${specialAttackEVBars[i].value}&specialDefenseEVs=${specialDefenseEVBars[i].value}&speedEVs=${speedEVBars[i].value}&move1=${moveSelectors[i * 4]}&move2=${moveSelectors[(i * 4) + 1]}&move3=${moveSelectors[(i * 4) + 2]}&move4=${moveSelectors[(i * 4) + 3]}`;
+            savedTeam.team.push(
+                `'member${i + 1}': {
+                'nickname': ${nicknameBars[i].value},
+                'species': ${selectedSpecies[i]},
+                'ability': ${selectedAbilities[i]},
+                'item': ${selectedItems[i]},                
+                'nature': ${selectedNatures[i]},
+                'IVs': {
+                    'HP': ${HPIVs[i]},
+                    'attack': ${attackIVs[i]},
+                    'defense': ${defenseIVs[i]},
+                    'special_attack': ${specialattackIVs[i]},
+                    'special_defense': ${specialDefenseIVs[i]},
+                    'speed': ${speedIVs[i]}
+                }
+                'EVs': {
+                    'HP': ${HPEVs[i]},
+                    'attack': ${attackEVs[i]},
+                    'defense': ${defenseEVs[i]},
+                    'special_attack': ${specialattackEVs[i]},
+                    'special_defense': ${specialDefenseEVs[i]},
+                    'speed': ${speedEVs[i]}
+                }
+                'moves': {
+                    'move_a': ${moveSelectors[i * 4]},
+                    'move_b': ${moveSelectors[(i * 4) + 1]},
+                    'move_c': ${moveSelectors[(i * 4) + 2]},
+                    'move_d': ${moveSelectors[(i * 4) + 3]}
+                }
+            }`
+            );
         }
-        
+
         let response = await fetch(teamID, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -233,14 +274,102 @@
         handleResponse(response);
     };
 
+    const loadTeam = async (teamID) => {
+        let response = await fetch(teamID, {
+            headers: {
+                'Accept': 'application/json'
+            },
+        });
+
+        handleResponse(response, method === 'get');
+    }
+
+    const displayLoadedTeam = (teamJSON) => {
+        memberCount = 0;
+
+        for (let i = 0; i < teamJSON.team.length; i++) {
+            addPokémon(getIndividualItem(`${POKÉAPI_URL_POKÉMON}/${teamJSON.team[i].species}`));
+        }
+
+        for (let i = 0; i < teamJSON.team.length; i++) {
+            nicknameBars[i].value = teamJSON.team[i].nickname;
+            levelBars[i].value = teamJSON.team[i].level;
+            moveSelectors[i * 4].value = teams[body.id].team[i].moves.move_a;
+            moveSelectors[(i * 4) + 1].value = teams[body.id].team[i].moves.move_b;
+            moveSelectors[(i * 4) + 2].value = teams[body.id].team[i].moves.move_c;
+            moveSelectors[(i * 4) + 3].value = teams[body.id].team[i].moves.move_d;
+            abilityBars[i].value = teams[body.id].team[i].ability;
+            itemBars[i].value = teams[body.id].team[i].item;
+            natureBars[i].value = teams[body.id].team[i].nature;
+            HPIVBars[i].value = teams[body.id].team[i].IVs.HP;
+            HPEVBars[i].value = teams[body.id].team[i].EVs.HP;
+            HPEVSliders[i].value = teams[body.id].team[i].EVs.HP;
+            attackIVBars[i].value = teams[body.id].team[i].IVs.attack;
+            attackEVBars[i].value = teams[body.id].team[i].EVs.attack;
+            attackEVSliders[i].value = teams[body.id].team[i].EVs.attack;
+            defenseIVBars[i].value = teams[body.id].team[i].IVs.defense;
+            defenseEVBars[i].value = teams[body.id].team[i].EVs.defense;
+            defenseEVSliders[i].value = teams[body.id].team[i].EVs.defense;
+            specialAttackIVBars[i].value = teams[body.id].team[i].IVs.special_attack;
+            specialAttackEVBars[i].value = teams[body.id].team[i].EVs.special_attack;
+            specialAttackEVSliders[i].value = teams[body.id].team[i].EVs.special_attack;
+            specialDefenseIVBars[i].value = teams[body.id].team[i].IVs.special_defense;
+            specialDefenseEVBars[i].value = teams[body.id].team[i].EVs.special_defense;
+            specialDefenseEVSliders[i].value = teams[body.id].team[i].EVs.special_defense;
+            speedIVBars[i].value = teams[body.id].team[i].IVs.speed;
+            speedEVBars[i].value = teams[body.id].team[i].EVs.speed;
+            speedEVSliders[i].value = teams[body.id].team[i].EVs.speed;
+
+            attackNatureMultipliers[i].innerHTML = 1.0;
+            defenseNatureMultipliers[i].innerHTML = 1.0;
+            specialAttackNatureMultipliers[i].innerHTML = 1.0;
+            specialDefenseNatureMultipliers[i].innerHTML = 1.0;
+            speedNatureMultipliers[i].innerHTML = 1.0;
+
+            nature = getIndividualItem(`${POKÉAPI_URL_NATURES}/${natureBars[i]}`);
+
+            if (nature["increased_stat"].name === "attack") {
+                attackNatureMultipliers[i].innerHTML = 1.1;
+            }
+            else if (nature["increased_stat"].name === "defense") {
+                defenseNatureMultipliers[i].innerHTML = 1.1;
+            }
+            else if (nature["increased_stat"].name === "special_attack") {
+                specialAttackNatureMultipliers[i].innerHTML = 1.1;
+            }
+            else if (nature["increased_stat"].name === "special_defense") {
+                specialDefenseNatureMultipliers[i].innerHTML = 1.1;
+            }
+            else if (nature["increased_stat"].name === "speed") {
+                speedNatureMultipliers[i].innerHTML = 1.1;
+            }
+
+            if (nature["decreased_stat"].name === "attack") {
+                attackNatureMultipliers[i].innerHTML = 0.9;
+            }
+            else if (nature["decreased_stat"].name === "defense") {
+                defenseNatureMultipliers[i].innerHTML = 0.9;
+            }
+            else if (nature["decreased_stat"].name === "special_attack") {
+                specialAttackNatureMultipliers[i].innerHTML = 0.9;
+            }
+            else if (nature["decreased_stat"].name === "special_defense") {
+                specialDefenseNatureMultipliers[i].innerHTML = 0.9;
+            }
+            else if (nature["decreased_stat"].name === "speed") {
+                speedNatureMultipliers[i].innerHTML = 0.9;
+            }
+
+            trueHPSections[i].innerHTML = Math.floor(((2 * Number(baseHPSections[i].innerHTML) + HPIVs[i] + Math.floor(HPEVs[i] / 4)) * chosenLevels[i]) / 100) + chosenLevels[i] + 10;
+            trueAttackSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[i].innerHTML) + attackIVs[i] + Math.floor(attackEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(attackNatureMultipliers[i].innerHTML));
+            trueDefenseSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[i].innerHTML) + defenseIVs[i] + Math.floor(defenseEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(defenseNatureMultipliers[i].innerHTML));
+            trueSpecialAttackSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[i].innerHTML) + specialAttackIVs[i] + Math.floor(specialAttackEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(specialAttackNatureMultipliers[i].innerHTML));
+            trueSpecialDefenseSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialDefenseSections[i].innerHTML) + specialDefenseIVs[i] + Math.floor(specialDefenseEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(specialDefenseNatureMultipliers[i].innerHTML));
+            trueSpeedSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[i].innerHTML) + speedIVs[i] + Math.floor(speedEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(speedNatureMultipliers[i].innerHTML));
+        }
+    }
+
     const loadData = (baseURL) => {
-        let url = baseURL + '?limit=200000&offset=0';
-        let obj;
-
-        getData(url);
-
-        return obj;
-
         const getData = (url) => {
             // 1
             let xhr = new XMLHttpRequest();
@@ -264,6 +393,13 @@
             let xhr = e.target;
             obj = JSON.parse(xhr.responseText);
         }
+
+        let url = baseURL + '?limit=200000&offset=0';
+        let obj;
+
+        getData(url);
+
+        return obj;
     }
 
     const getIndividualItem = (itemURL) => {
@@ -854,10 +990,10 @@
                 else if (newNature["increased_stat"].name === "defense") {
                     defenseNatureMultipliers[memberCount - 1].innerHTML = 1.1;
                 }
-                else if (newNature["increased_stat"].name === "special-attack") {
+                else if (newNature["increased_stat"].name === "special_attack") {
                     specialAttackNatureMultipliers[memberCount - 1].innerHTML = 1.1;
                 }
-                else if (newNature["increased_stat"].name === "special-defense") {
+                else if (newNature["increased_stat"].name === "special_defense") {
                     specialDefenseNatureMultipliers[memberCount - 1].innerHTML = 1.1;
                 }
                 else if (newNature["increased_stat"].name === "speed") {
@@ -870,10 +1006,10 @@
                 else if (newNature["decreased_stat"].name === "defense") {
                     defenseNatureMultipliers[memberCount - 1].innerHTML = 0.9;
                 }
-                else if (newNature["decreased_stat"].name === "special-attack") {
+                else if (newNature["decreased_stat"].name === "special_attack") {
                     specialAttackNatureMultipliers[memberCount - 1].innerHTML = 0.9;
                 }
-                else if (newNature["decreased_stat"].name === "special-defense") {
+                else if (newNature["decreased_stat"].name === "special_defense") {
                     specialDefenseNatureMultipliers[memberCount - 1].innerHTML = 0.9;
                 }
                 else if (newNature["decreased_stat"].name === "speed") {
@@ -1048,7 +1184,7 @@
             natureBars[i].value = selectedNatures[i];
             HPIVBars[i].value = HPIVs[i];
             HPEVBars[i].value = HPEVs[i];
-            HPEVSliders.value = HPEVs[i];
+            HPEVSliders[i].value = HPEVs[i];
             attackIVBars[i].value = attackIVs[i];
             attackEVBars[i].value = attackEVs[i];
             attackEVSliders[i].value = attackEVs[i];
@@ -1079,10 +1215,10 @@
             else if (nature["increased_stat"].name === "defense") {
                 defenseNatureMultipliers[i].innerHTML = 1.1;
             }
-            else if (nature["increased_stat"].name === "special-attack") {
+            else if (nature["increased_stat"].name === "special_attack") {
                 specialAttackNatureMultipliers[i].innerHTML = 1.1;
             }
-            else if (nature["increased_stat"].name === "special-defense") {
+            else if (nature["increased_stat"].name === "special_defense") {
                 specialDefenseNatureMultipliers[i].innerHTML = 1.1;
             }
             else if (nature["increased_stat"].name === "speed") {
@@ -1095,10 +1231,10 @@
             else if (nature["decreased_stat"].name === "defense") {
                 defenseNatureMultipliers[i].innerHTML = 0.9;
             }
-            else if (nature["decreased_stat"].name === "special-attack") {
+            else if (nature["decreased_stat"].name === "special_attack") {
                 specialAttackNatureMultipliers[i].innerHTML = 0.9;
             }
-            else if (nature["decreased_stat"].name === "special-defense") {
+            else if (nature["decreased_stat"].name === "special_defense") {
                 specialDefenseNatureMultipliers[i].innerHTML = 0.9;
             }
             else if (nature["decreased_stat"].name === "speed") {
