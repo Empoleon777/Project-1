@@ -3,6 +3,7 @@ const url = require('url');
 const query = require('querystring');
 const htmlHandler = require('./htmlResponses.js');
 const jsonHandler = require('./jsonResponses.js');
+const imageHandler = require('./imageResponses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
@@ -49,9 +50,14 @@ const handlePost = (request, response, parsedUrl) => {
 const handleGet = (request, response, parsedUrl) => {
     if (parsedUrl.pathname === '/') {
         htmlHandler.getIndex(request, response);
-    } else if (parsedUrl.pathname === '/style.css') {
+    }
+    else if (parsedUrl.pathname === '/style.css') {
         htmlHandler.getCSS(request, response);
-    } else {
+    }
+    else if (parsedUrl.pathname === '/UltraBall.png') {
+        imageHandler.getUltraBall(request, response);
+    }
+    else {
         jsonHandler.notFound(request, response);
     }
 };
