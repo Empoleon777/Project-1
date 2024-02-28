@@ -403,10 +403,6 @@
     }
 
     const getIndividualItem = (itemURL) => {
-        let obj;
-        getData(itemURL);
-        return obj;
-
         const getData = (url) => {
             // 1
             let xhr = new XMLHttpRequest();
@@ -430,6 +426,10 @@
             let xhr = e.target;
             obj = JSON.parse(xhr.responseText);
         }
+
+        let obj;
+        getData(itemURL);
+        return obj;
     }
 
     // This method cleans up name formatting.
