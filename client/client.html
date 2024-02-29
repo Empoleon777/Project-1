@@ -161,7 +161,7 @@
         natures = loadData(POKÉAPI_URL_NATURES);
         types = loadData(POKÉAPI_URL_TYPES);
 
-        searchBar.addEventListener('change', search);
+        searchBar.addEventListener('keyup', search);
         teamSelector.addEventListener('change', saveTeam);
         document.querySelector("#TeamSave").addEventListener('click', saveTeam);
 
@@ -370,65 +370,31 @@
     }
 
     const loadData = async (baseURL) => {
-        const getData = async (url) => {
-            // 1
-            let xhr = new XMLHttpRequest();
-
-            // 2
-            xhr.onload = returnJSON;
-
-            // 3
-            xhr.onerror = dataError;
-
-            // 4
-            xhr.open("GET", url);
-            xhr.send();
-        }
-
-        const dataError = (e) => {
-            console.log("An error occurred");
-        }
-
-        const returnJSON = async (e) => {
-            let xhr = e.target;
-            obj = JSON.parse(xhr.responseText);
-        }
-
-        let url = baseURL + '?limit=200000&offset=0';
         let obj;
 
-        getData(url);
+        try {
+            const url = baseURL + '?limit=200000&offset=0';
+            const response = await fetch(url);
+            obj = await response.json();
+        }
+        catch (err) {
+            console.log(err);
+        }
 
         return obj;
     }
 
     const getIndividualItem = async (itemURL) => {
-        const getData = async (url) => {
-            // 1
-            let xhr = new XMLHttpRequest();
-
-            // 2
-            xhr.onload = returnJSON;
-
-            // 3
-            xhr.onerror = dataError;
-
-            // 4
-            xhr.open("GET", url);
-            xhr.send();
-        }
-
-        const dataError = (e) => {
-            console.log("An error occurred");
-        }
-
-        const returnJSON = async (e) => {
-            let xhr = e.target;
-            obj = JSON.parse(xhr.responseText);
-        }
-
         let obj;
-        getData(itemURL);
+
+        try {
+            const response = await fetch(itemURL);
+            obj = await response.json();
+        }
+        catch (err) {
+            console.log(err);
+        }
+
         return obj;
     }
 
