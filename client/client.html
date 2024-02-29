@@ -369,8 +369,8 @@
         }
     }
 
-    const loadData = (baseURL) => {
-        const getData = (url) => {
+    const loadData = async (baseURL) => {
+        const getData = async (url) => {
             // 1
             let xhr = new XMLHttpRequest();
 
@@ -402,8 +402,8 @@
         return obj;
     }
 
-    const getIndividualItem = (itemURL) => {
-        const getData = (url) => {
+    const getIndividualItem = async (itemURL) => {
+        const getData = async (url) => {
             // 1
             let xhr = new XMLHttpRequest();
 
