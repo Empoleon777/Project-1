@@ -147,19 +147,19 @@
 
     let teamSelector = document.querySelector("#TeamSelector");
 
-    const init = () => {
+    const init = async () => {
         searchBar = document.querySelector("#searchterm");
         searchButton = document.querySelector("#search");
         results = document.querySelector("#results");
         content = document.querySelector("#content");
         teamName = document.querySelector("#TeamName");
 
-        pokémon = loadData(POKÉAPI_URL_POKÉMON);
-        moves = loadData(POKÉAPI_URL_MOVES);
-        berries = loadData(POKÉAPI_URL_BERRIES);
-        items = loadData(POKÉAPI_URL_ITEMS);
-        natures = loadData(POKÉAPI_URL_NATURES);
-        types = loadData(POKÉAPI_URL_TYPES);
+        pokémon = await loadData(POKÉAPI_URL_POKÉMON);
+        moves = await loadData(POKÉAPI_URL_MOVES);
+        berries = await loadData(POKÉAPI_URL_BERRIES);
+        items = await loadData(POKÉAPI_URL_ITEMS);
+        natures = await loadData(POKÉAPI_URL_NATURES);
+        types = await loadData(POKÉAPI_URL_TYPES);
 
         searchBar.addEventListener('keyup', search);
         teamSelector.addEventListener('change', saveTeam);
@@ -450,7 +450,6 @@
     const search = () => {
         results.innerHTML = "";
         let result = ""
-        let resultList;
 
         // First things first, we need to process the search term.
         let term = document.querySelector("#searchterm").value;
@@ -468,7 +467,7 @@
                 // The result is displayed. The name, types, and party sprite of the 
                 // Pokémon will be included.
                 line += `<div class='result'>`;
-                line += `<img class='resultsprite' src="${result["sprites"]["front_default"]}"`;
+                line += `<img class='resultsprite' src="${result["sprites"].front_default}"`;
                 line += `" alt="">`
 
                 line += `<div class='resultname'>`;

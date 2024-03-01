@@ -22,66 +22,63 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 // };
 
 const parseBody = (request, response, handler) => {
-    const body = [];
+  const body = [];
 
-    request.on('error', (err) => {
-        console.dir(err);
-        response.statusCode = 400;
-        response.end();
-    });
+  request.on('error', (err) => {
+    console.dir(err);
+    response.statusCode = 400;
+    response.end();
+  });
 
-    request.on('data', (chunk) => {
-        body.push(chunk);
-    });
+  request.on('data', (chunk) => {
+    body.push(chunk);
+  });
 
-    request.on('end', () => {
-        const bodyString = Buffer.concat(body).toString();
-        const bodyParams = query.parse(bodyString);
-        handler(request, response, bodyParams);
-    });
+  request.on('end', () => {
+    const bodyString = Buffer.concat(body).toString();
+    const bodyParams = query.parse(bodyString);
+    handler(request, response, bodyParams);
+  });
 };
 
 const handlePost = (request, response, parsedUrl) => {
-    if (parsedUrl.pathname === '/addUser') {
-        parseBody(request, response, jsonHandler.addTeam);
-    }
+  if (parsedUrl.pathname === '/addUser') {
+    parseBody(request, response, jsonHandler.addTeam);
+  }
 };
 
 const handleGet = (request, response, parsedUrl) => {
-    if (parsedUrl.pathname === '/') {
-        htmlHandler.getIndex(request, response);
-    }
-    else if (parsedUrl.pathname === '/style.css') {
-        htmlHandler.getCSS(request, response);
-    }
-    else if (parsedUrl.pathname === '/UltraBall.png') {
-        imageHandler.getUltraBall(request, response);
-    }
-    else {
-        jsonHandler.notFound(request, response);
-    }
+  if (parsedUrl.pathname === '/') {
+    htmlHandler.getIndex(request, response);
+  } else if (parsedUrl.pathname === '/style.css') {
+    htmlHandler.getCSS(request, response);
+  } else if (parsedUrl.pathname === '/UltraBall.png') {
+    imageHandler.getUltraBall(request, response);
+  } else {
+    jsonHandler.notFound(request, response);
+  }
 };
 
 const onRequest = (request, response) => {
-    const parsedUrl = url.parse(request.url);
+  const parsedUrl = url.parse(request.url);
 
-    if (request.method === 'POST') {
-        handlePost(request, response, parsedUrl);
-    } else {
-        handleGet(request, response, parsedUrl);
-    }
+  if (request.method === 'POST') {
+    handlePost(request, response, parsedUrl);
+  } else {
+    handleGet(request, response, parsedUrl);
+  }
 
-    //   if (!urlStruct[request.method]) {
-    //       return urlStruct.HEAD.notFound(request, response);
-    //   }
+  //   if (!urlStruct[request.method]) {
+  //       return urlStruct.HEAD.notFound(request, response);
+  //   }
 
-    //   if (urlStruct[request.method][parsedUrl.pathname]) {
-    //       return urlStruct[request.method][parsedUrl.pathname](request, response);
-    //   }
+  //   if (urlStruct[request.method][parsedUrl.pathname]) {
+  //       return urlStruct[request.method][parsedUrl.pathname](request, response);
+  //   }
 
-    //   return urlStruct[request.method].notFound(request, response);
+  //   return urlStruct[request.method].notFound(request, response);
 };
 
 http.createServer(onRequest).listen(port, () => {
-    console.log(`Listening on 127.0.0.1:${port}`);
+  console.log(`Listening on 127.0.0.1:${port}`);
 });
