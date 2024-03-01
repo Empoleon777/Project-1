@@ -286,9 +286,15 @@
 
     const displayLoadedTeam = (teamJSON) => {
         memberCount = 0;
+        let member;
 
         for (let i = 0; i < teamJSON.team.length; i++) {
-            addPokémon(getIndividualItem(`${POKÉAPI_URL_POKÉMON}/${teamJSON.team[i].species}`));
+            for (let j = 0; j < pokémon; j++) {
+                if (teamJSON['team'][`member${i}`][species] === pokémon[i]["species"].name) {
+                    member = pokémon[i];
+                }
+            }
+            addPokémon(pokémon);
         }
 
         for (let i = 0; i < teamJSON.team.length; i++) {
@@ -326,7 +332,11 @@
             specialDefenseNatureMultipliers[i].innerHTML = 1.0;
             speedNatureMultipliers[i].innerHTML = 1.0;
 
-            nature = getIndividualItem(`${POKÉAPI_URL_NATURES}/${natureBars[i]}`);
+            for (let j = 0; j < natures.length; j++) {
+                if (natureBars.value === natures[j].name) {
+                    nature = natures[j];
+                }
+            }
 
             if (nature["increased_stat"].name === "attack") {
                 attackNatureMultipliers[i].innerHTML = 1.1;
@@ -371,6 +381,7 @@
 
     const loadData = async (baseURL) => {
         let obj;
+        let trueData = [];
 
         try {
             const url = baseURL + '?limit=200000&offset=0';
@@ -381,21 +392,21 @@
             console.log(err);
         }
 
-        return obj;
-    }
+        let promises = [];
 
-    const getIndividualItem = async (itemURL) => {
-        let obj;
-
-        try {
-            const response = await fetch(itemURL);
-            obj = await response.json();
-        }
-        catch (err) {
-            console.log(err);
+        for (let i = 0; i < obj["results"].length; i++) {
+            promises.push(fetch(obj["results"][i].url));
         }
 
-        return obj;
+        Promise.all(promises).then(() => {
+            for (let i = 0; i < promises.length; i++) {
+                trueData.push(promises[i]);
+            }
+        }).catch(err => {
+            throw new Error('An item could not be retrieved properly.');
+        });
+
+        return trueData;
     }
 
     // This method cleans up name formatting.
@@ -450,6 +461,7 @@
     const search = () => {
         results.innerHTML = "";
         let result = ""
+        let resultList;
 
         // First things first, we need to process the search term.
         let term = document.querySelector("#searchterm").value;
@@ -460,9 +472,10 @@
 
         let line = "";
 
-        for (let i = 0; i < pokémon["results"].length; i++) {
-            if (pokémon["results"][i].name.slice(0, term.length) == term) {
-                result = getIndividualItem(pokémon["results"][i].url);
+        for (let i = 0; i < pokémon.length; i++) {
+            if (((pokémon[i].name.slice(0, term.length)).toUpperCase === term.toUpperCase()) ||
+                (((reformatName(pokémon[i].name.slice(0, term.length))).toUpperCase === term.toUpperCase()))) {
+                result = pokémon[i];
 
                 // The result is displayed. The name, types, and party sprite of the 
                 // Pokémon will be included.
@@ -593,7 +606,18 @@
 
         for (let i = 0; i < resultList.length; i++) {
             resultList[i].onclick = () => {
-                addPokémon(getIndividualItem(`${POKÉAPI_URL_POKÉMON}/${resultList[i].HiddenName}`));
+                let member;
+
+                for (let i = 0; i < pokémon.length; i++) {
+                    for (let j = 0; j < pokémon; j++) {
+                        if (((pokémon[i].name.slice(0, term.length)).toUpperCase === term.toUpperCase()) ||
+                            (((reformatName(pokémon[i].name.slice(0, term.length))).toUpperCase === term.toUpperCase()))) {
+                            member = pokémon[i];
+                        }
+                    }
+
+                    addPokémon(member);
+                }
             }
         }
     };
@@ -692,13 +716,13 @@
 
             // This loop grabs the berries from the object we constructed and drops 
             // them into the held item selector.
-            for (let i = 0; i < berries["count"]; i++) {
-                line += `<option value="${berries["results"][i].name} berry">${reformatName(berries["results"][i].name)} Berry</option>`;
+            for (let i = 0; i < berries.length; i++) {
+                line += `<option value="${berries[i].name} berry">${reformatName(berries[i].name)} Berry</option>`;
             }
 
             // This loop does the same for the items.
-            for (let i = 0; i < items["count"]; i++) {
-                line += `<option value="${items["results"][i].name}">${reformatName(items["results"][i].name)}</option>`;
+            for (let i = 0; i < items.length; i++) {
+                line += `<option value="${items[i].name}">${reformatName(items[i].name)}</option>`;
             }
 
             line += `</select>`;
@@ -709,7 +733,7 @@
 
             // This loop adds the natures.
             for (let i = 0; i < natures.count; i++) {
-                line += `<option value="${natures["results"][i].name} berry">${reformatName(natures["results"][i].name)}</option>`;
+                line += `<option value="${natures[i].name} berry">${reformatName(natures[i].name)}</option>`;
             }
 
             line += `</select>`;
@@ -947,7 +971,11 @@
                 specialDefenseNatureMultipliers[memberCount - 1].innerHTML = 1.0;
                 speedNatureMultipliers[memberCount - 1].innerHTML = 1.0;
 
-                newNature = getIndividualItem(`${POKÉAPI_URL_NATURES}/${natureBars[memberCount - 1].value}`);
+                for (let i = 0; i < natures.length; i++) {
+                    if (natures[i].name === natureBars[memberCount - 1].value) {
+                        newNature = natures[i];
+                    }
+                }
 
                 if (newNature["increased_stat"].name === "attack") {
                     attackNatureMultipliers[memberCount - 1].innerHTML = 1.1;
@@ -1131,10 +1159,18 @@
         speedEVs.splice(slot, 1);
 
         let membersLeft = document.querySelectorAll(".added").length;
+        let member;
         memberCount = 0;
 
         for (let i = 0; i < membersLeft; i++) {
-            addPokémon(getIndividualItem(`${POKÉAPI_URL_POKÉMON}/${selectedSpecies[i]}`));
+            for (let j = 0; j < pokémon; j++) {
+                if (((pokémon[i].name.slice(0, term.length)).toUpperCase === term.toUpperCase()) ||
+                    (((reformatName(pokémon[i].name.slice(0, term.length))).toUpperCase === term.toUpperCase()))) {
+                    member = pokémon[i];
+                }
+            }
+
+            addPokémon(member);
         }
 
         for (let i = 0; i < memberCount; i++) {
@@ -1172,7 +1208,11 @@
             specialDefenseNatureMultipliers[i].innerHTML = 1.0;
             speedNatureMultipliers[i].innerHTML = 1.0;
 
-            nature = getIndividualItem(`${POKÉAPI_URL_NATURES}/${natureBars[i]}`);
+            for (let j = 0; j < natures.length; j++) {
+                if (natures[j].name === natureBars[i].value) {
+                    nature = natures[j];
+                }
+            }
 
             if (nature["increased_stat"].name === "attack") {
                 attackNatureMultipliers[i].innerHTML = 1.1;

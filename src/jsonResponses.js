@@ -56,6 +56,12 @@ const addTeam = (request, response, body) => {
                     'special_defense': ${teams[body.id].team[i].EVs.special_defense},
                     'speed': ${teams[body.id].team[i].EVs.speed}
                 }
+                'moves': {
+                  'move_a': ${teams[body.id].team[i].moves.move_a},
+                  'move_b': ${teams[body.id].team[i].moves.move_d},
+                  'move_c': ${teams[body.id].team[i].moves.move_c},
+                  'move_d': ${teams[body.id].team[i].moves.move_d}
+                }
             }`,
     );
   }
