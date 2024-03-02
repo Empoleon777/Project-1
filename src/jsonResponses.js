@@ -82,9 +82,9 @@ const updateTeam = (request, response) => {
   return respondJSON(request, response, 201, newTeam);
 };
 
-const getUsers = (request, response) => {
+const getTeams = (request, response) => {
   const responseJSON = {
-    teams,
+    teams
   };
 
   return respondJSON(request, response, 200, responseJSON);
@@ -103,6 +103,6 @@ module.exports = {
   respondJSON,
   addTeam,
   updateTeam,
-  getUsers,
+  getTeams,
   notFound,
 };

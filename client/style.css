@@ -1,7 +1,7 @@
 body {
     background-color: black;
     display: grid;
-    grid-template-rows: auto auto 90px 500px;
+    grid-template-rows: auto auto 90px 600px;
     grid-template-columns: 180px 120px 50% 30%;
     grid-template-areas:
         "Header Header Header Header"

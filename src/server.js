@@ -42,7 +42,7 @@ const parseBody = (request, response, handler) => {
 };
 
 const handlePost = (request, response, parsedUrl) => {
-  if (parsedUrl.pathname === '/addUser') {
+  if (parsedUrl.pathname === '/saveTeam') {
     parseBody(request, response, jsonHandler.addTeam);
   }
 };
@@ -50,11 +50,17 @@ const handlePost = (request, response, parsedUrl) => {
 const handleGet = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/') {
     htmlHandler.getIndex(request, response);
-  } else if (parsedUrl.pathname === '/style.css') {
+  }
+  else if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
-  } else if (parsedUrl.pathname === '/UltraBall.png') {
+  }
+  else if (parsedUrl.pathname === '/UltraBall.png') {
     imageHandler.getUltraBall(request, response);
-  } else {
+  }
+  else if (parsedUrl.pathname === '/getTeams') {
+    jsonHandler.getTeams(request, response);
+  }
+  else {
     jsonHandler.notFound(request, response);
   }
 };

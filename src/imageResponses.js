@@ -1,4 +1,4 @@
-const ultraBallURL = '../Images/UltraBall.png';
+const ultraBallURL = '../client/UltraBall.png';
 const fs = require('fs');
 
 const getUltraBall = (request, response) => {
@@ -16,7 +16,7 @@ const getUltraBall = (request, response) => {
 };
 
 module.exports = {
-  getUltraBall,
+  getUltraBall
 };
 
 // The Totem Lurantis is not hard.
