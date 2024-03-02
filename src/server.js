@@ -50,17 +50,13 @@ const handlePost = (request, response, parsedUrl) => {
 const handleGet = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/') {
     htmlHandler.getIndex(request, response);
-  }
-  else if (parsedUrl.pathname === '/style.css') {
+  } else if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
-  }
-  else if (parsedUrl.pathname === '/UltraBall.png') {
+  } else if (parsedUrl.pathname === '/UltraBall.png') {
     imageHandler.getUltraBall(request, response);
-  }
-  else if (parsedUrl.pathname === '/getTeams') {
+  } else if (parsedUrl.pathname === '/getTeams') {
     jsonHandler.getTeams(request, response);
-  }
-  else {
+  } else {
     jsonHandler.notFound(request, response);
   }
 };

@@ -84,7 +84,7 @@ const updateTeam = (request, response) => {
 
 const getTeams = (request, response) => {
   const responseJSON = {
-    teams
+    teams,
   };
 
   return respondJSON(request, response, 200, responseJSON);

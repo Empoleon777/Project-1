@@ -16,7 +16,7 @@ const getUltraBall = (request, response) => {
 };
 
 module.exports = {
-  getUltraBall
+  getUltraBall,
 };
 
 // The Totem Lurantis is not hard.

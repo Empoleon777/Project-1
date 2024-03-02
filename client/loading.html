@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Screen Example</title>
+    <style>
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #loading-text {
+            font-size: 24px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading-screen">
+        <p id="loading-text">Loading...</p>
+    </div>
+
+    <!-- Your content goes here -->
+    <div id="content" class="hidden">
+        <!-- Content elements -->
+    </div>
+
+    <script>
+        window.addEventListener('load', async () => {
+            try {
+                // Show loading screen
+                const loadingScreen = document.getElementById('loading-screen');
+                loadingScreen.style.display = 'block';
+
+                // Load API data
+                await loadAllData();
+
+                // Hide loading screen and show content
+                loadingScreen.style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            }
+            catch (error) {
+                console.error("Error initializing:", error);
+            }
+        });
+    </script>
+    <script src="teamjs.js"></script>
+</body>
+
+</html>
