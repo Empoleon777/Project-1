@@ -11,9 +11,9 @@
 
 <body>
     <header>
-        <img src="/UltraBall.png" alt="">
+        <!-- <img src="UltraBall.png" alt=""> -->
         THE POKEMON TEAM OUTLINER
-        <img src="/UltraBall.png" alt="">
+        <!-- <img src="UltraBall.png" alt=""> -->
     </header>
 
     <div id="Description">
@@ -154,12 +154,12 @@
         teamName = document.querySelector("#TeamName");
         teamSelector = document.querySelector("#TeamSelector");
 
-        setTimeout(async () => (pokémon = await loadData(POKÉAPI_URL_POKÉMON)), 500);
-        setTimeout(async () => (moves = await loadData(POKÉAPI_URL_MOVES)), 500);
-        setTimeout(async () => (berries = await loadData(POKÉAPI_URL_BERRIES)), 500);
-        setTimeout(async () => (items = await loadData(POKÉAPI_URL_ITEMS)), 500);
-        setTimeout(async () => (natures = await loadData(POKÉAPI_URL_NATURES)), 500);
-        setTimeout(async () => (types = await loadData(POKÉAPI_URL_TYPES)), 500);
+        setTimeout(async () => (pokémon = await loadData(POKÉAPI_URL_POKÉMON)), 3000);
+        setTimeout(async () => (moves = await loadData(POKÉAPI_URL_MOVES)), 3000);
+        setTimeout(async () => (berries = await loadData(POKÉAPI_URL_BERRIES)), 3000);
+        setTimeout(async () => (items = await loadData(POKÉAPI_URL_ITEMS)), 3000);
+        setTimeout(async () => (natures = await loadData(POKÉAPI_URL_NATURES)), 3000);
+        setTimeout(async () => (types = await loadData(POKÉAPI_URL_TYPES)), 3000);
 
         searchBar.addEventListener('keyup', search);
         teamSelector.addEventListener('change', saveTeam);
@@ -193,6 +193,55 @@
                 }
             }
         });
+
+        let result;
+
+        for (let i = 0; i < pokémon.length; i++) {
+            result = pokémon[i];
+
+            // The result is displayed. The name, types, and party sprite of the 
+            // Pokémon will be included.
+            line += `<div class='result'>`;
+            line += `<img class='resultsprite' src="${result["sprites"].front_default}"`;
+            line += `" alt="">`
+
+            line += `<div class='resultname'>`;
+            line += `${reformatName(result.name)}`;
+            line += `</div>`;
+
+            line += `<div class='types'>`;
+            for (let i = 0; i < result["types"].length; i++) {
+                let type = result["types"][i]["type"].name;
+                line += `<div class='type'>`;
+                line += `${reformatName(type)}`;
+                line += `</div>`;
+            }
+            line += `</div>`;
+
+            line += `<div class='resultabilities'>`;
+            for (let i = 0; i < result["abilities"].length; i++) {
+                line += `<p>${reformatName(result["abilities"][i]["ability"].name)}</p>`;
+            }
+            line += `</div>`;
+
+            line += `<p class="ResultHPLabel">HP</p>`;
+            line += `<p class="ResultAttackLabel">Attack</p>`;
+            line += `<p class="ResultDefenseLabel">Defense</p>`;
+            line += `<p class="ResultSpecialAttackLabel">Special Attack</p>`;
+            line += `<p class="ResultSpecialDefenseLabel">Special Defense</p>`;
+            line += `<p class="ResultSpeedLabel">Speed</p>`;
+
+            line += `<p class="ResultBaseHP">${result["stats"][0].base_stat}</p>`;
+            line += `<p class="ResultBaseAttack">${result["stats"][1].base_stat}</p>`;
+            line += `<p class="ResultBaseDefense">${result["stats"][2].base_stat}</p>`;
+            line += `<p class="ResultBaseSpecialAttack">${result["stats"][3].base_stat}</p>`;
+            line += `<p class="ResultBaseSpecialDefense">${result["stats"][4].base_stat}</p>`;
+            line += `<p class="ResultBaseSpeed">${result["stats"][5].base_stat}</p>`;
+
+            line += `<div class="HiddenName">${result.name}</div>`;
+
+            line += `</div>`;
+        }
     }
 
     const generateTeamID = () => {

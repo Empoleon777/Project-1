@@ -215,6 +215,10 @@ button:focus {
     grid-area: BaseSpeed;
 }
 
+.HiddenName {
+    display: none;
+}
+
 .AddedPokémon {
     background-color: grey;
     border-style: solid;
