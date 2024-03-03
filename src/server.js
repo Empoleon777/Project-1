@@ -4,8 +4,12 @@ const query = require('querystring');
 const htmlHandler = require('./htmlResponses.js');
 const jsonHandler = require('./jsonResponses.js');
 const imageHandler = require('./imageResponses.js');
+const jsHandler = require('./jsResponses.js');
+let apiDataLoaded = false;
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
+
+const { loadAllData } = require('../client/teamjs.js');
 
 // const urlStruct = {
 //   GET: {
@@ -48,15 +52,30 @@ const handlePost = (request, response, parsedUrl) => {
 };
 
 const handleGet = (request, response, parsedUrl) => {
+  if (!apiDataLoaded) {
+    htmlHandler.getLoadingScreen(request, response);
+    return;
+  }
+
   if (parsedUrl.pathname === '/') {
     htmlHandler.getIndex(request, response);
-  } else if (parsedUrl.pathname === '/style.css') {
+  }
+  else if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
-  } else if (parsedUrl.pathname === '/UltraBall.png') {
+  }
+  else if (parsedUrl.pathname === '/UltraBall.png') {
     imageHandler.getUltraBall(request, response);
-  } else if (parsedUrl.pathname === '/getTeams') {
+  }
+  else if (parsedUrl.pathname === '/getTeams') {
     jsonHandler.getTeams(request, response);
-  } else {
+  }
+  else if (parsedUrl.pathname === '/teamjs.js') {
+    jsHandler.getTeamJSFile(request, response);
+  }
+  else if (parsedUrl.pathname === '/loading.js') {
+    jsHandler.getLoaderFile(request, response);
+  }
+  else {
     jsonHandler.notFound(request, response);
   }
 };
@@ -84,3 +103,13 @@ const onRequest = (request, response) => {
 http.createServer(onRequest).listen(port, () => {
   console.log(`Listening on 127.0.0.1:${port}`);
 });
+
+loadAllData()
+  .then(() => {
+    // Set the flag to indicate that API data has been loaded
+    apiDataLoaded = true;
+    console.log('API data loaded successfully.');
+  })
+  .catch((error) => {
+    console.error('Failed to load API data:', error);
+  });

@@ -1320,4 +1320,10 @@ const deletePokémon = (slot) => {
     }
 }
 
-window.onload = init;
+if (typeof window !== 'undefined') {
+    window.onload = init;
+}
+
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = { loadAllData };
+}
