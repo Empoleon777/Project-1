@@ -75,6 +75,14 @@ const handleGet = (request, response, parsedUrl) => {
   else if (parsedUrl.pathname === '/loading.js') {
     jsHandler.getLoaderFile(request, response);
   }
+  else if (parsedUrl.pathname === '/apiDataLoaded') {
+    parseBody(request, response, (bodyParams) => {
+      apiDataLoaded = bodyParams.loaded === true;
+      console.log('API data loaded:', apiDataLoaded);
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.end();
+    });
+  }
   else {
     jsonHandler.notFound(request, response);
   }
@@ -103,13 +111,3 @@ const onRequest = (request, response) => {
 http.createServer(onRequest).listen(port, () => {
   console.log(`Listening on 127.0.0.1:${port}`);
 });
-
-loadAllData()
-  .then(() => {
-    // Set the flag to indicate that API data has been loaded
-    apiDataLoaded = true;
-    console.log('API data loaded successfully.');
-  })
-  .catch((error) => {
-    console.error('Failed to load API data:', error);
-  });

@@ -1321,6 +1321,27 @@ const deletePokémon = (slot) => {
 }
 
 if (typeof window !== 'undefined') {
+    window.addEventListener('load', async () => {
+        try {
+            await loadAllData();
+            console.log('API data loaded successfully.');
+
+            // Once data is loaded, notify the server
+            const response = await fetch('/apiDataLoaded', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ loaded: true })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to notify server.');
+            }
+        } catch (error) {
+            console.error("Error initializing:", error);
+        }
+    });
+
     window.onload = init;
 }
 
