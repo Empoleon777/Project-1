@@ -25,6 +25,7 @@ const { loadAllData } = require('../client/teamjs.js');
 //   },
 // };
 
+// Parses the url.
 const parseBody = (request, response, handler) => {
   const body = [];
 
@@ -45,13 +46,16 @@ const parseBody = (request, response, handler) => {
   });
 };
 
+// Handles the one POST request, which saves the team.
 const handlePost = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/saveTeam') {
     parseBody(request, response, jsonHandler.addTeam);
   }
 };
 
+// Handles the many GET requests in this method.
 const handleGet = (request, response, parsedUrl) => {
+  // This block will keep the user at the loading screen until all the data we need from PokéAPI is loaded.
   if (!apiDataLoaded) {
     htmlHandler.getLoadingScreen(request, response);
     return;
@@ -66,6 +70,7 @@ const handleGet = (request, response, parsedUrl) => {
   else if (parsedUrl.pathname === '/UltraBall.png') {
     imageHandler.getUltraBall(request, response);
   }
+  // This endpoint pulls the teams from the server.
   else if (parsedUrl.pathname === '/getTeams') {
     jsonHandler.getTeams(request, response);
   }
@@ -75,6 +80,7 @@ const handleGet = (request, response, parsedUrl) => {
   else if (parsedUrl.pathname === '/loading.js') {
     jsHandler.getLoaderFile(request, response);
   }
+  // This endpoint will signal that all of the data has been loaded from PokéAPI.
   else if (parsedUrl.pathname === '/apiDataLoaded') {
     parseBody(request, response, (bodyParams) => {
       apiDataLoaded = bodyParams.loaded === true;

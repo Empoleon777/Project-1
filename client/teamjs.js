@@ -89,6 +89,7 @@ let speedEVs;
 
 let teamSelector;
 
+// This method readies everything.
 const init = async () => {
     searchBar = document.querySelector("#searchterm");
     searchButton = document.querySelector("#search");
@@ -97,14 +98,14 @@ const init = async () => {
     teamName = document.querySelector("#TeamName");
     teamSelector = document.querySelector("#TeamSelector");
 
+    // First, every Pokémon will be inserted into the results column.
     try {
         let result;
 
         for (let i = 0; i < pokémon.length; i++) {
             result = pokémon[i];
 
-            // The result is displayed. The name, types, and party sprite of the 
-            // Pokémon will be included.
+            // The result is displayed. The name, types, and sprite of the Pokémon will be included.
             line += `<div class='result'>`;
             line += `<img class='resultsprite' src="${result["sprites"].front_default}"`;
             line += `" alt="">`
@@ -114,20 +115,22 @@ const init = async () => {
             line += `</div>`;
 
             line += `<div class='types'>`;
-            for (let i = 0; i < result["types"].length; i++) {
-                let type = result["types"][i]["type"].name;
+            for (let j = 0; j < result["types"].length; j++) {
+                let type = result["types"][j]["type"].name;
                 line += `<div class='type'>`;
                 line += `${reformatName(type)}`;
                 line += `</div>`;
             }
             line += `</div>`;
 
+            // We also need to show the abilities each Pokémon can have.
             line += `<div class='resultabilities'>`;
-            for (let i = 0; i < result["abilities"].length; i++) {
-                line += `<p>${reformatName(result["abilities"][i]["ability"].name)}</p>`;
+            for (let j = 0; i < result["abilities"].length; j++) {
+                line += `<p>${reformatName(result["abilities"][j]["ability"].name)}</p>`;
             }
             line += `</div>`;
 
+            // We also show the base stats.
             line += `<p class="ResultHPLabel">HP</p>`;
             line += `<p class="ResultAttackLabel">Attack</p>`;
             line += `<p class="ResultDefenseLabel">Defense</p>`;
@@ -142,6 +145,7 @@ const init = async () => {
             line += `<p class="ResultBaseSpecialDefense">${result["stats"][4].base_stat}</p>`;
             line += `<p class="ResultBaseSpeed">${result["stats"][5].base_stat}</p>`;
 
+            // Each result will have the name, as formatted for use with the API, hidden within it, mostly for the sake of adding to the team.
             line += `<div class="HiddenName">${result.name}</div>`;
 
             line += `</div>`;
@@ -163,6 +167,7 @@ const init = async () => {
     //     }
     // }
 
+    // We pull the teams from the server, then insert them into the team selector.
     const response = await fetch('/getTeams');
     const teamData = await response.json();
 
@@ -175,6 +180,7 @@ const init = async () => {
         displayLoadedTeam(team);
     });
 
+    // There will be an alert if a team isn't saved manually.
     document.querySelector("#NewTeam").addEventListener('click', () => {
         if (!isteamSaved) {
             if (confirm("This team is unsaved. Are you sure you want to create a new team?")) {
@@ -185,6 +191,7 @@ const init = async () => {
     });
 }
 
+// This method loads six whole endpoints into lists of JSON files for later use.
 const loadAllData = async () => {
     setTimeout(async () => (pokémon = await loadData(POKÉAPI_URL_POKÉMON)), 0);
     setTimeout(async () => (moves = await loadData(POKÉAPI_URL_MOVES)), 0);
@@ -194,6 +201,7 @@ const loadAllData = async () => {
     setTimeout(async () => (types = await loadData(POKÉAPI_URL_TYPES)), 0);
 }
 
+// A helper function that generates a random ID to save a new team under.
 const generateTeamID = () => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     let teamID = ""
@@ -205,6 +213,7 @@ const generateTeamID = () => {
     return teamID;
 }
 
+// Handles responses.
 const handleResponse = async (response, parseResponse) => {
     switch (response.status) {
         case 200:
@@ -233,13 +242,16 @@ const handleResponse = async (response, parseResponse) => {
     }
 };
 
+// Saves the current team to the server.
 const saveTeam = async (content) => {
+    // First, we start setting up the JSON; we'll have the ID and name at the highest level, then the team.
     let savedTeam = {
         'teamID': teamID,
         'teamName': teamName,
         'team': {}
     }
 
+    // This loop will add the members to the team section.
     for (let i = 0; i < memberCount; i++) {
         savedTeam.team.push(
             `'member${i + 1}': {
@@ -274,7 +286,8 @@ const saveTeam = async (content) => {
         );
     }
 
-    let response = await fetch(teamID, {
+    // Handles the POST response.
+    let response = await fetch(`/saveTeam/${teamID}`, {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json',
@@ -285,8 +298,9 @@ const saveTeam = async (content) => {
     handleResponse(response);
 };
 
+// Loads a team from the server.
 const loadTeam = async (teamID) => {
-    let response = await fetch(teamID, {
+    let response = await fetch(`/getTeams/${teamID}`, {
         headers: {
             'Accept': 'application/json'
         },
@@ -295,10 +309,13 @@ const loadTeam = async (teamID) => {
     handleResponse(response, method === 'get');
 }
 
+// This will load a saved team to the page.
 const displayLoadedTeam = (teamJSON) => {
+    // First, we reset the member count.
     memberCount = 0;
     let member;
 
+    // We start by adding a blank section for each Pokémon.
     for (let i = 0; i < teamJSON.team.length; i++) {
         for (let j = 0; j < pokémon; j++) {
             if (teamJSON['team'][`member${i}`][species] === pokémon[i]["species"].name) {
@@ -308,6 +325,7 @@ const displayLoadedTeam = (teamJSON) => {
         addPokémon(pokémon);
     }
 
+    // This section will load the data from each individual Pokémon where it needs to be.
     for (let i = 0; i < teamJSON.team.length; i++) {
         nicknameBars[i].value = teamJSON.team[i].nickname;
         levelBars[i].value = teamJSON.team[i].level;
@@ -343,6 +361,7 @@ const displayLoadedTeam = (teamJSON) => {
         specialDefenseNatureMultipliers[i].innerHTML = 1.0;
         speedNatureMultipliers[i].innerHTML = 1.0;
 
+        // This section properly sets up the nature modifiers.
         for (let j = 0; j < natures.length; j++) {
             if (natureBars.value === natures[j].name) {
                 nature = natures[j];
@@ -381,6 +400,7 @@ const displayLoadedTeam = (teamJSON) => {
             speedNatureMultipliers[i].innerHTML = 0.9;
         }
 
+        // The stats are recalculated here.
         trueHPSections[i].innerHTML = Math.floor(((2 * Number(baseHPSections[i].innerHTML) + HPIVs[i] + Math.floor(HPEVs[i] / 4)) * chosenLevels[i]) / 100) + chosenLevels[i] + 10;
         trueAttackSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[i].innerHTML) + attackIVs[i] + Math.floor(attackEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(attackNatureMultipliers[i].innerHTML));
         trueDefenseSections[i].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[i].innerHTML) + defenseIVs[i] + Math.floor(defenseEVs[i] / 4)) * levelBars[i]) / 100) + 5) * Number(defenseNatureMultipliers[i].innerHTML));
@@ -390,10 +410,12 @@ const displayLoadedTeam = (teamJSON) => {
     }
 }
 
+// This helper function loads everything in a specified endpoint into an object.
 const loadData = async (baseURL) => {
     let obj;
     let trueData = [];
 
+    // First, we grab what the URL will grab - A near-useless catalogue of URLs.
     try {
         const url = baseURL + '?limit=200000&offset=0';
         const response = await fetch(url);
@@ -403,6 +425,7 @@ const loadData = async (baseURL) => {
         throw err;
     }
 
+    // This section uses the catalogue of URLs to get the data associated with each one, then add it to a list of JSON files.
     try {
         for (let i = 0; i < obj["results"].length; i++) {
             const response = await fetch(obj["results"][i].url);
@@ -414,12 +437,14 @@ const loadData = async (baseURL) => {
         throw err;
     }
 
+    // The list of JSON files is returned.
     return trueData;
 }
 
 
 // This method cleans up name formatting.
 const reformatName = (name) => {
+    // This section will remove unnecessary dashes. However, there are some cases where they're part of the name.
     for (let i = 0; i < name.length; i++) {
         if (name[i] === '-' &&
             (name != "porygon-z" ||
@@ -454,6 +479,7 @@ const reformatName = (name) => {
             name != " ";
         }
 
+        // This section capitalizes words.
         name = name.charAt(0).toUpperCase() + name.slice(1);
 
         if ((name[i] === '-' ||
@@ -464,9 +490,11 @@ const reformatName = (name) => {
         }
     }
 
+    // The reformatted name is returned.
     return name;
 }
 
+// This function searches for what the user wants to search for. It's linked to the keyup event, that way each interaction with the input will get the user closer and closer to what they want.
 const search = () => {
     results.innerHTML = "";
     let result = ""
@@ -481,9 +509,9 @@ const search = () => {
 
     let line = "";
 
-    // If the term is empty, every  is going in.
     if (!(term.length === 0)) {
         for (let i = 0; i < pokémon.length; i++) {
+            // If the typed-in term is found at the beginning of a name, that result is loaded.
             if (((pokémon[i].name.slice(0, term.length)).toUpperCase === term.toUpperCase()) ||
                 (((reformatName(pokémon[i].name.slice(0, term.length))).toUpperCase === term.toUpperCase()))) {
                 result = pokémon[i];
@@ -499,8 +527,8 @@ const search = () => {
                 line += `</div>`;
 
                 line += `<div class='types'>`;
-                for (let i = 0; i < result["types"].length; i++) {
-                    let type = result["types"][i]["type"].name;
+                for (let j = 0; j < result["types"].length; j++) {
+                    let type = result["types"][j]["type"].name;
                     line += `<div class='type'>`;
                     line += `${reformatName(type)}`;
                     line += `</div>`;
@@ -508,8 +536,8 @@ const search = () => {
                 line += `</div>`;
 
                 line += `<div class='resultabilities'>`;
-                for (let i = 0; i < result["abilities"].length; i++) {
-                    line += `<p>${reformatName(result["abilities"][i]["ability"].name)}</p>`;
+                for (let j = 0; j < result["abilities"].length; j++) {
+                    line += `<p>${reformatName(result["abilities"][j]["ability"].name)}</p>`;
                 }
                 line += `</div>`;
 
@@ -533,6 +561,7 @@ const search = () => {
             }
         }
     }
+    // If the term is empty, every Pokémon is going in.
     else {
         for (let i = 0; i < pokémon.length; i++) {
             result = pokémon[i];
@@ -548,8 +577,8 @@ const search = () => {
             line += `</div>`;
 
             line += `<div class='types'>`;
-            for (let i = 0; i < result["types"].length; i++) {
-                let type = result["types"][i]["type"].name;
+            for (let j = 0; j < result["types"].length; j++) {
+                let type = result["types"][j]["type"].name;
                 line += `<div class='type'>`;
                 line += `${reformatName(type)}`;
                 line += `</div>`;
@@ -557,8 +586,8 @@ const search = () => {
             line += `</div>`;
 
             line += `<div class='resultabilities'>`;
-            for (let i = 0; i < result["abilities"].length; i++) {
-                line += `<p>${reformatName(result["abilities"][i]["ability"].name)}</p>`;
+            for (let j = 0; i < result["abilities"].length; j++) {
+                line += `<p>${reformatName(result["abilities"][j]["ability"].name)}</p>`;
             }
             line += `</div>`;
 
@@ -669,6 +698,7 @@ const search = () => {
 
     resultList = document.querySelectorAll(".result");
 
+    // Now we need to link up addPokémon() to each result.
     for (let i = 0; i < resultList.length; i++) {
         resultList[i].onclick = () => {
             let member;
@@ -689,10 +719,12 @@ const search = () => {
 
 // Adds a Pokémon to the content bar.
 function addPokémon(pokémon) {
+    // The user is not allowed to add any more members if they already have six members.
     if (memberCount === 6) {
         alert("Your team is full!");
     }
     else {
+        // First, we increment the member count.
         memberCount++;
 
         let result = pokémon;
@@ -809,6 +841,7 @@ function addPokémon(pokémon) {
         line += `<div class="SpeedMultiplier">1.0</div>`;
         line += `</div>`;
 
+        // We now add the base stats.
         line += `<div class="BaseHP">`;
         line += `${result["stats"][0].base_stat}`;
         line += `</div>`;
@@ -969,6 +1002,7 @@ function addPokémon(pokémon) {
             }
         }
 
+        // We'll store references to all of the fields to link things up right.
         deleteButtons = document.querySelectorAll(".delete");
         nicknameBars = document.querySelectorAll(".AddedPokémonName");
         levelBars = document.querySelectorAll(".LevelBar");
@@ -1012,12 +1046,14 @@ function addPokémon(pokémon) {
         speedNatureMultipliers = document.querySelectorAll(".SpeedMultiplier");
         trueSpeedSections = document.querySelectorAll(".TrueSpeed");
 
+        // Each member is linked up to the proper delete button.
         for (let i = 0; i < deleteButtons.length; i++) {
             deleteButtons[i].onclick = (i) => {
                 deletePokémon;
             }
         }
 
+        // This event recalculates stats when the member's level is changed.
         levelBars[memberCount - 1].onchange = () => {
             trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
             trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
@@ -1027,21 +1063,26 @@ function addPokémon(pokémon) {
             trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
         }
 
+        // Every member's default nature is Serious, one of the five neutral natures.
         natureBars[memberCount - 1].value = serious;
 
+        // This event will change the nature accordingly.
         natureBars[memberCount - 1].onchange = () => {
+            // First, we set all five multipliers to 1.
             attackNatureMultipliers[memberCount - 1].innerHTML = 1.0;
             defenseNatureMultipliers[memberCount - 1].innerHTML = 1.0;
             specialAttackNatureMultipliers[memberCount - 1].innerHTML = 1.0;
             specialDefenseNatureMultipliers[memberCount - 1].innerHTML = 1.0;
             speedNatureMultipliers[memberCount - 1].innerHTML = 1.0;
 
+            // The new nature is stored.
             for (let i = 0; i < natures.length; i++) {
                 if (natures[i].name === natureBars[memberCount - 1].value) {
                     newNature = natures[i];
                 }
             }
 
+            // The increased stat will have its multiplier set to 1.1.
             if (newNature["increased_stat"].name === "attack") {
                 attackNatureMultipliers[memberCount - 1].innerHTML = 1.1;
             }
@@ -1058,6 +1099,7 @@ function addPokémon(pokémon) {
                 speedNatureMultipliers[memberCount - 1].innerHTML = 1.1;
             }
 
+            // The decreased stat has its multiplier set to 0.9.
             if (newNature["decreased_stat"].name === "attack") {
                 attackNatureMultipliers[memberCount - 1].innerHTML = 0.9;
             }
@@ -1074,6 +1116,7 @@ function addPokémon(pokémon) {
                 speedNatureMultipliers[memberCount - 1].innerHTML = 0.9;
             }
 
+            // All stats are recalculated.
             trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
             trueDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[memberCount - 1].innerHTML) + defenseIVBars[memberCount - 1].value + Math.floor(defenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(defenseNatureMultipliers[memberCount - 1].innerHTML));
             trueSpecialAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpecialAttackSections[memberCount - 1].innerHTML) + specialAttackIVBars[memberCount - 1].value + Math.floor(specialAttackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(specialAttackNatureMultipliers[memberCount - 1].innerHTML));
@@ -1081,6 +1124,7 @@ function addPokémon(pokémon) {
             trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
         }
 
+        // The EV bars and sliders are linked up properly. Each stat's EV bar and EV slider will have the same value at all times, and recalculates the stat with each change.
         HPEVBars[memberCount - 1].onchange = () => {
             HPEVSliders[memberCount - 1].value = HPEVBars[memberCount - 1].value;
             trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
@@ -1141,6 +1185,7 @@ function addPokémon(pokémon) {
             trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
         }
 
+        // The IV bars are linked up.
         HPIVBars[memberCount - 1].onchange = () => {
             trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
         }
@@ -1165,6 +1210,7 @@ function addPokémon(pokémon) {
             trueSpeedSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseSpeedSections[memberCount - 1].innerHTML) + speedIVBars[memberCount - 1].value + Math.floor(speedEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(speedNatureMultipliers[memberCount - 1].innerHTML));
         }
 
+        // The stats are calculated.
         trueHPSections[memberCount - 1].innerHTML = Math.floor(((2 * Number(baseHPSections[memberCount - 1].innerHTML) + HPIVBars[memberCount - 1].value + Math.floor(HPEVBars[memberCount - 1] / 4)) * levelBars[memberCount - 1]) / 100) + levelBars[memberCount - 1] + 10;
         trueAttackSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseAttackSections[memberCount - 1].innerHTML) + attackIVBars[memberCount - 1].value + Math.floor(attackEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(attackNatureMultipliers[memberCount - 1].innerHTML));
         trueDefenseSections[memberCount - 1].innerHTML = Math.floor((Math.floor(((2 * Number(baseDefenseSections[memberCount - 1].innerHTML) + defenseIVBars[memberCount - 1].value + Math.floor(defenseEVBars[memberCount - 1].value / 4)) * levelBars[memberCount - 1]) / 100) + 5) * Number(defenseNatureMultipliers[memberCount - 1].innerHTML));
@@ -1174,9 +1220,12 @@ function addPokémon(pokémon) {
     }
 }
 
+// Deletes a member from the team.
 const deletePokémon = (slot) => {
+    // We'll store the members first.
     selectedSpecies = document.querySelectorAll(".PokémonNameValue");
 
+    // We store any input data.
     for (let i = 0; i < memberCount; i++) {
         chosenNicknames.push(nicknameBars[i].value);
         chosenLevels.push(levelBars[i].value);
@@ -1201,8 +1250,10 @@ const deletePokémon = (slot) => {
         speedEVs.push(speedEVBars[i].value);
     }
 
+    // Next, we clear the team section.
     content.innerHTML = "";
 
+    // We'll slice the data from the deleted member from each array.
     selectedSpecies.splice(slot, 1);
     chosenNicknames.splice(slot, 1);
     chosenLevels.splice(slot, 1);
@@ -1223,6 +1274,7 @@ const deletePokémon = (slot) => {
     speedIVs.splice(slot, 1);
     speedEVs.splice(slot, 1);
 
+    // Now we just add everybody back in.
     let membersLeft = document.querySelectorAll(".added").length;
     let member;
     memberCount = 0;
@@ -1238,6 +1290,7 @@ const deletePokémon = (slot) => {
         addPokémon(member);
     }
 
+    // Once all the members have been added back in, the data is added back to where it should be.
     for (let i = 0; i < memberCount; i++) {
         nicknameBars[i].value = chosenNicknames[i];
         levelBars[i].value = chosenLevels[i];
@@ -1320,13 +1373,14 @@ const deletePokémon = (slot) => {
     }
 }
 
+// This block is meant to notify the server when all the data has been loaded from PokéAPI.
 if (typeof window !== 'undefined') {
     window.addEventListener('load', async () => {
         try {
             await loadAllData();
             console.log('API data loaded successfully.');
 
-            // Once data is loaded, notify the server
+            // Once data is loaded, notify the server.
             const response = await fetch('/apiDataLoaded', {
                 method: 'POST',
                 headers: {
