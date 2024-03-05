@@ -193,12 +193,17 @@ const init = async () => {
 
 // This method loads six whole endpoints into lists of JSON files for later use.
 const loadAllData = async () => {
-    setTimeout(async () => (pokémon = await loadData(POKÉAPI_URL_POKÉMON)), 0);
-    setTimeout(async () => (moves = await loadData(POKÉAPI_URL_MOVES)), 0);
-    setTimeout(async () => (berries = await loadData(POKÉAPI_URL_BERRIES)), 0);
-    setTimeout(async () => (items = await loadData(POKÉAPI_URL_ITEMS)), 0);
-    setTimeout(async () => (natures = await loadData(POKÉAPI_URL_NATURES)), 0);
-    setTimeout(async () => (types = await loadData(POKÉAPI_URL_TYPES)), 0);
+    try {
+        pokémon = await loadData(POKÉAPI_URL_POKÉMON);
+        moves = await loadData(POKÉAPI_URL_MOVES);
+        berries = await loadData(POKÉAPI_URL_BERRIES);
+        items = await loadData(POKÉAPI_URL_ITEMS);
+        natures = await loadData(POKÉAPI_URL_NATURES);
+        types = await loadData(POKÉAPI_URL_TYPES);
+    } catch (error) {
+        console.error("Error loading data:", error);
+        throw error;
+    }
 }
 
 // A helper function that generates a random ID to save a new team under.

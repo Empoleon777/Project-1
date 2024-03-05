@@ -2,10 +2,10 @@
   "name": "project-1",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "server.cjs",
   "type": "module",
   "scripts": {
-    "start": "node ./src/server.js",
+    "start": "node ./src/server.cjs",
     "pretest": "eslint ./src --fix",
     "test": "echo \"Tests complete\""
   },
