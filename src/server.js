@@ -56,6 +56,15 @@ const handlePost = (request, response, parsedUrl) => {
 // Handles the many GET requests in this method.
 const handleGet = (request, response, parsedUrl) => {
   // This block will keep the user at the loading screen until all the data we need from PokéAPI is loaded.
+  if (parsedUrl.pathname === '/loading.js') {
+    jsHandler.getLoaderFile(request, response);
+    return;
+  }
+  else if (parsedUrl.pathname === '/teamjs.js') {
+    jsHandler.getTeamJSFile(request, response);
+    return;
+  }
+  
   if (!apiDataLoaded) {
     htmlHandler.getLoadingScreen(request, response);
     return;

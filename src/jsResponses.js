@@ -10,11 +10,11 @@ const respond = (request, response, content, type) => {
 };
 
 const getTeamJSFile = (request, response) => {
-    respond(request, response, teamjs, 'text/javascript');
+    respond(request, response, teamjs, 'application/javascript');
 };
 
 const getLoaderFile = (request, response) => {
-    respond(request, response, loading, 'text/javascript');
+    respond(request, response, loading, 'application/javascript');
 };
 
 module.exports.getTeamJSFile = getTeamJSFile;

@@ -1,3 +1,5 @@
+import { loadAllData } from './teamjs.js';
+
 window.addEventListener('load', async () => {
     try {
         // Show loading screen

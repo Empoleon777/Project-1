@@ -91,8 +91,7 @@ let teamSelector;
 
 // This method readies everything.
 const init = async () => {
-    searchBar = document.querySelector("#searchterm");
-    searchButton = document.querySelector("#search");
+    searchBar = document.querySelector("#SearchBar");
     results = document.querySelector("#results");
     content = document.querySelector("#content");
     teamName = document.querySelector("#TeamName");
@@ -156,7 +155,7 @@ const init = async () => {
     }
 
     searchBar.addEventListener('keyup', search);
-    teamSelector.addEventListener('change', saveTeam);
+    teamSelector.addEventListener('change', loadTeam);
     document.querySelector("#TeamSave").addEventListener('click', saveTeam);
 
     let isTeamSaved = false;
@@ -176,6 +175,7 @@ const init = async () => {
     });
 
     teamSelector.addEventListener('change', async () => {
+        teamID = teamSelector.value;
         const team = await loadTeam(teamSelector.value);
         displayLoadedTeam(team);
     });
@@ -1398,6 +1398,8 @@ if (typeof window !== 'undefined') {
 
     window.onload = init;
 }
+
+export { loadAllData };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = { loadAllData };
