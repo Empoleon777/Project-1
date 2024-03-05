@@ -1,15 +1,15 @@
 const http = require('http');
 const url = require('url');
 const query = require('querystring');
-const htmlHandler = require('./htmlResponses.js');
-const jsonHandler = require('./jsonResponses.js');
-const imageHandler = require('./imageResponses.js');
-const jsHandler = require('./jsResponses.js');
+const htmlHandler = require('./htmlResponses.cjs');
+const jsonHandler = require('./jsonResponses.cjs');
+const imageHandler = require('./imageResponses.cjs');
+const jsHandler = require('./jsResponses.cjs');
 let apiDataLoaded = false;
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-const { loadAllData } = require('../client/teamjs.js');
+const { loadAllData } = require('../client/teamjs.mjs');
 
 // const urlStruct = {
 //   GET: {

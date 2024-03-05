@@ -1,4 +1,4 @@
-import { loadAllData } from './teamjs.js';
+import { loadAllData } from './teamjs.mjs';
 
 window.addEventListener('load', async () => {
     try {
